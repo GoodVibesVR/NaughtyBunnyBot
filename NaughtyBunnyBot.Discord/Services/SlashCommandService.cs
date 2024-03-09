@@ -21,30 +21,19 @@ public class SlashCommandService : ISlashCommandService
     {
         var slashCommands = new[]
         {
-            // Game server commands
             new SlashCommandBuilder()
-                .WithName(SlashCommandConstants.BooliTest)
-                .WithDescription(SlashCommandConstants.BooliTestDescription),
+                .WithName(SlashCommandConstants.Enable)
+                .WithDescription(SlashCommandConstants.EnableDescription),
             new SlashCommandBuilder()
-                .WithName(SlashCommandConstants.BooliList)
-                .WithDescription(SlashCommandConstants.BooliListDescription),
+                .WithName(SlashCommandConstants.Disable)
+                .WithDescription(SlashCommandConstants.DisableDescription),
+                
             new SlashCommandBuilder()
-                .WithName(SlashCommandConstants.BooliPerformance)
-                .WithDescription(SlashCommandConstants.BooliPerformanceDescription),
+                .WithName(SlashCommandConstants.Leaderboard)
+                .WithDescription(SlashCommandConstants.LeaderboardDescription),
             new SlashCommandBuilder()
-                .WithName(SlashCommandConstants.BooliGet)
-                .WithDescription(SlashCommandConstants.BooliGetDescription)
-                .AddOption("id", ApplicationCommandOptionType.String, "The identifier of the game server", isRequired: true),
-            new SlashCommandBuilder()
-                .WithName(SlashCommandConstants.BooliRestart)
-                .WithDescription(SlashCommandConstants.BooliRestartDescription)
-                .AddOption("id", ApplicationCommandOptionType.String, "The identifier of the game server", isRequired: true),
-
-            // Bully commands
-            new SlashCommandBuilder()
-                .WithName(SlashCommandConstants.Booli)
-                .WithDescription(SlashCommandConstants.BooliDescription)
-                .AddOption("user", ApplicationCommandOptionType.User, "The friend you want to booli!", isRequired: false)
+                .WithName(SlashCommandConstants.Profile)
+                .WithDescription(SlashCommandConstants.ProfileDescription)
         };
 
         foreach (var slashCommand in slashCommands)
