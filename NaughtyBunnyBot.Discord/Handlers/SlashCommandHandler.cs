@@ -26,28 +26,28 @@ public class SlashCommandHandler
     {
         try
         {
-            switch (command.Data.Name)
-            {
-                case SlashCommandConstants.Booli:
-                    //await _bullyCommandService.HandleRandomBullyQuoteCommandAsync(command);
-                    break;
-                case SlashCommandConstants.BooliTest:
-                    await _commandService.HandleTestCommandAsync(command);
-                    break;
-                case SlashCommandConstants.BooliList:
-                    //await _gameServerCommandService.HandleServerListCommandAsync(command);
-                    break;
-                case SlashCommandConstants.BooliPerformance:
-                    //await _gameServerCommandService.HandlePerformanceCommandAsync(command);
-                    break;
-                case SlashCommandConstants.BooliGet:
-                    //await _gameServerCommandService.HandleServerGetCommandAsync(command);
-                    break;
-                case SlashCommandConstants.BooliRestart:
-                    if (!await IsUserAuthorized(command)) return;
-                    //await _gameServerCommandService.HandleServerRestartCommandAsync(command);
-                    break;
-            }
+            //switch (command.Data.Name)
+            //{
+            //    case SlashCommandConstants.Booli:
+            //        //await _bullyCommandService.HandleRandomBullyQuoteCommandAsync(command);
+            //        break;
+            //    case SlashCommandConstants.BooliTest:
+            //        await _commandService.HandleTestCommandAsync(command);
+            //        break;
+            //    case SlashCommandConstants.BooliList:
+            //        //await _gameServerCommandService.HandleServerListCommandAsync(command);
+            //        break;
+            //    case SlashCommandConstants.BooliPerformance:
+            //        //await _gameServerCommandService.HandlePerformanceCommandAsync(command);
+            //        break;
+            //    case SlashCommandConstants.BooliGet:
+            //        //await _gameServerCommandService.HandleServerGetCommandAsync(command);
+            //        break;
+            //    case SlashCommandConstants.BooliRestart:
+            //        if (!await IsUserAuthorized(command)) return;
+            //        //await _gameServerCommandService.HandleServerRestartCommandAsync(command);
+            //        break;
+            //}
         }
         catch (Exception e)
         {

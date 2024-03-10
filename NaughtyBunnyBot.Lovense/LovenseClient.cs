@@ -4,21 +4,22 @@ using System.Net.Http.Headers;
 using System.Net;
 using System.Text;
 using Microsoft.Extensions.Options;
+using NaughtyBunnyBot.Lovense.Abstractions;
 using NaughtyBunnyBot.Lovense.Exceptions;
 using NaughtyBunnyBot.Lovense.Requests;
 using NaughtyBunnyBot.Lovense.Responses;
 
 namespace NaughtyBunnyBot.Lovense
 {
-    public class LovenseClient
+    public class LovenseClient : ILovenseClient
     {
-        private readonly string? _apiRoot;
         private readonly string? _developerToken;
+        private readonly HttpClient _httpClient;
 
-        public LovenseClient(IOptions<LovenseConfig> lovenseConfig)
+        public LovenseClient(IHttpClientFactory httpClientFactory, IOptions<LovenseConfig> lovenseConfig)
         {
-            _apiRoot = lovenseConfig.Value.ApiRoot;
             _developerToken = lovenseConfig.Value.DeveloperToken;
+            _httpClient = httpClientFactory.CreateClient(lovenseConfig.Value.ClientName ?? "LovenseClient");
         }
 
         public async Task<WebCommandResponseV2?> GetQrCodeAsync(WebGetQrCodeRequest request)
@@ -28,12 +29,7 @@ namespace NaughtyBunnyBot.Lovense
             var result = await PostAsync<WebCommandResponseV2>(path,
                 new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
 
-            if (result?.Code != 0)
-            {
-                return null;
-            }
-
-            return result;
+            return result?.Code != 0 ? null : result;
         }
 
         public async Task<WebCommandResponseV2?> CommandAsync(WebCommandRequest request)
@@ -58,11 +54,9 @@ namespace NaughtyBunnyBot.Lovense
 
         private async Task<T?> PostAsync<T>(string path, HttpContent content)
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri($"{_apiRoot}");
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            var response = await client.PostAsync(path, content);
+            var response = await _httpClient.PostAsync(path, content);
             var json = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode == HttpStatusCode.OK && !string.IsNullOrEmpty(json))

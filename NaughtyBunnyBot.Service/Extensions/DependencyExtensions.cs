@@ -8,6 +8,7 @@ using NaughtyBunnyBot.Discord.Services;
 using NaughtyBunnyBot.Lovense.Services.Abstractions;
 using NaughtyBunnyBot.Lovense.Services;
 using NaughtyBunnyBot.Discord;
+using NaughtyBunnyBot.Lovense.Abstractions;
 
 namespace NaughtyBunnyBot.Service.Extensions
 {
@@ -16,9 +17,23 @@ namespace NaughtyBunnyBot.Service.Extensions
         public static IServiceCollection RegisterDependencies(this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.Configure<LovenseConfig>(configuration.GetSection("Lovense"));
-            services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
+            // Config
+            var lovenseSection = configuration.GetSection("Lovense");
+            var lovenseConfig = lovenseSection.Get<LovenseConfig>();
+            services.AddHttpClient(
+                lovenseConfig?.ClientName ?? "LovenseClient",
+                client =>
+                {
+                    // Set the base address of the named client.
+                    client.BaseAddress = new Uri(lovenseConfig!.ApiRoot!);
 
+                    // Add a user-agent default request header.
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("dotnet-docs");
+                }
+            );
+
+            services.Configure<LovenseConfig>(lovenseSection);
+            services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
             var discordConfig = new DiscordSocketConfig()
             {
                 GatewayIntents = GatewayIntents.None
@@ -30,6 +45,9 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<SlashCommandHandler>();
             services.AddSingleton<ISlashCommandService, SlashCommandService>();
             services.AddSingleton<ILovenseService, LovenseService>();
+
+            // Transients
+            services.AddTransient<ILovenseClient, ILovenseClient>();
 
             // Hosted services
             services.AddHostedService<DiscordClient>();
