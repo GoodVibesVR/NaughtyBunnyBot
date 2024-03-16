@@ -12,6 +12,10 @@ using NaughtyBunnyBot.Discord.Services;
 using NaughtyBunnyBot.Lovense.Services.Abstractions;
 using NaughtyBunnyBot.Lovense.Services;
 using NaughtyBunnyBot.Discord;
+using NaughtyBunnyBot.Egg.Services;
+using NaughtyBunnyBot.Egg.Services.Abstractions;
+using NaughtyBunnyBot.Egg.Settings;
+using NaughtyBunnyBot.Lovense;
 using NaughtyBunnyBot.Lovense.Abstractions;
 
 namespace NaughtyBunnyBot.Service.Extensions
@@ -38,6 +42,7 @@ namespace NaughtyBunnyBot.Service.Extensions
 
             services.Configure<LovenseConfig>(lovenseSection);
             services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
+            services.Configure<EggConfig>(configuration.GetSection("Egg"));
             var discordConfig = new DiscordSocketConfig()
             {
                 GatewayIntents = GatewayIntents.None
@@ -49,13 +54,14 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<SlashCommandHandler>();
             services.AddSingleton<ISlashCommandService, SlashCommandService>();
             services.AddSingleton<ILovenseService, LovenseService>();
+            services.AddSingleton<IEggService, EggService>();
             services.AddSingleton<ILeaderboardService, LeaderboardService>();
             services.AddSingleton<ILeaderboardRepository>(_ =>
                 new LeaderboardRepository(configuration.GetValue<string>("ConnectionStrings:Leaderboard") ??
                                           throw new ArgumentNullException("connectionString")));
 
             // Transients
-            services.AddTransient<ILovenseClient, ILovenseClient>();
+            services.AddTransient<ILovenseClient, LovenseClient>();
 
             // Hosted services
             services.AddHostedService<DiscordClient>();

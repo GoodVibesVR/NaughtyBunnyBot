@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NaughtyBunnyBot.Lovense", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NaughtyBunnyBot.Database", "NaughtyBunnyBot.Database\NaughtyBunnyBot.Database.csproj", "{4A1CB3E7-04DD-4B6C-B894-612047FB5D04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaughtyBunnyBot.Leaderboard", "NaughtyBunnyBot.Leaderboard\NaughtyBunnyBot.Leaderboard.csproj", "{17C61FA4-E88D-4066-B45A-861803743BD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NaughtyBunnyBot.Leaderboard", "NaughtyBunnyBot.Leaderboard\NaughtyBunnyBot.Leaderboard.csproj", "{17C61FA4-E88D-4066-B45A-861803743BD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaughtyBunnyBot.Egg", "NaughtyBunnyBot.Egg\NaughtyBunnyBot.Egg.csproj", "{98452F1F-C3A0-444A-8ECE-0B805CA58C0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{17C61FA4-E88D-4066-B45A-861803743BD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17C61FA4-E88D-4066-B45A-861803743BD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17C61FA4-E88D-4066-B45A-861803743BD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98452F1F-C3A0-444A-8ECE-0B805CA58C0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98452F1F-C3A0-444A-8ECE-0B805CA58C0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98452F1F-C3A0-444A-8ECE-0B805CA58C0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98452F1F-C3A0-444A-8ECE-0B805CA58C0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
