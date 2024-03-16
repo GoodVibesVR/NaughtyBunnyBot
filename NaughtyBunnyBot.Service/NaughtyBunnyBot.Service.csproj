@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NaughtyBunnyBot.Common\NaughtyBunnyBot.Common.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Database\NaughtyBunnyBot.Database.csproj" />
     <ProjectReference Include="..\NaughtyBunnyBot.Discord\NaughtyBunnyBot.Discord.csproj" />
     <ProjectReference Include="..\NaughtyBunnyBot.Lovense\NaughtyBunnyBot.Lovense.csproj" />
   </ItemGroup>

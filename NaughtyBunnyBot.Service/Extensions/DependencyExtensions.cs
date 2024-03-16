@@ -1,6 +1,10 @@
 ﻿using NaughtyBunnyBot.Lovense.Settings;
 using Discord.WebSocket;
 using Discord;
+using NaughtyBunnyBot.Database.Repositories;
+using NaughtyBunnyBot.Database.Repositories.Abstractions;
+using NaughtyBunnyBot.Database.Services;
+using NaughtyBunnyBot.Database.Services.Abstractions;
 using DiscordConfig = NaughtyBunnyBot.Discord.Settings.DiscordConfig;
 using NaughtyBunnyBot.Discord.Handlers;
 using NaughtyBunnyBot.Discord.Services.Abstractions;
@@ -45,6 +49,10 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<SlashCommandHandler>();
             services.AddSingleton<ISlashCommandService, SlashCommandService>();
             services.AddSingleton<ILovenseService, LovenseService>();
+            services.AddSingleton<ILeaderboardService, LeaderboardService>();
+            services.AddSingleton<ILeaderboardRepository>(_ =>
+                new LeaderboardRepository(configuration.GetValue<string>("ConnectionStrings:Leaderboard") ??
+                                          throw new ArgumentNullException("connectionString")));
 
             // Transients
             services.AddTransient<ILovenseClient, ILovenseClient>();
