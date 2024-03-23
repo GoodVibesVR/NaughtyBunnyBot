@@ -13,41 +13,44 @@ public class SlashCommandHandler
     private readonly ILogger<SlashCommandHandler> _logger;
     private readonly DiscordConfig _discordSettings;
     private readonly ISlashCommandService _commandService;
+    private readonly IEnableCommandService _enableCommandService;
+    private readonly IScoreCommandService _scoreCommandService;
 
     public SlashCommandHandler(ILogger<SlashCommandHandler> logger, IOptions<DiscordConfig> discordSettings, 
-        ISlashCommandService commandService)
+        ISlashCommandService commandService, IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService)
     {
         _logger = logger;
         _discordSettings = discordSettings.Value;
         _commandService = commandService;
+
+        _enableCommandService = enableCommandService;
+        _scoreCommandService = scoreCommandService;
     }
 
     public async Task SlashCommandExecutedAsync(SocketSlashCommand command)
     {
         try
         {
-            //switch (command.Data.Name)
-            //{
-            //    case SlashCommandConstants.Booli:
-            //        //await _bullyCommandService.HandleRandomBullyQuoteCommandAsync(command);
-            //        break;
-            //    case SlashCommandConstants.BooliTest:
-            //        await _commandService.HandleTestCommandAsync(command);
-            //        break;
-            //    case SlashCommandConstants.BooliList:
-            //        //await _gameServerCommandService.HandleServerListCommandAsync(command);
-            //        break;
-            //    case SlashCommandConstants.BooliPerformance:
-            //        //await _gameServerCommandService.HandlePerformanceCommandAsync(command);
-            //        break;
-            //    case SlashCommandConstants.BooliGet:
-            //        //await _gameServerCommandService.HandleServerGetCommandAsync(command);
-            //        break;
-            //    case SlashCommandConstants.BooliRestart:
-            //        if (!await IsUserAuthorized(command)) return;
-            //        //await _gameServerCommandService.HandleServerRestartCommandAsync(command);
-            //        break;
-            //}
+            switch (command.Data.Name)
+            {
+                case SlashCommandConstants.Enable:
+                    if (!await IsUserAuthorized(command)) return;
+                    await _enableCommandService.HandleEnableCommandAsync(command);
+                    break;
+                case SlashCommandConstants.Disable:
+                    if (!await IsUserAuthorized(command)) return;
+                    await _enableCommandService.HandleDisableCommandAsync(command);
+                    break;
+                case SlashCommandConstants.Leaderboard:
+                    await _scoreCommandService.HandleLeaderboardCommandAsync(command);
+                    break;
+                case SlashCommandConstants.Profile:
+                    await _scoreCommandService.HandleProfileCommandAsync(command);
+                    break;
+                default:
+                    _logger.LogWarning($"Unknown command: {command.Data.Name}");
+                    break;
+            }
         }
         catch (Exception e)
         {

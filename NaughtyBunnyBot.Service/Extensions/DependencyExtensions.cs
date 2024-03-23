@@ -53,6 +53,9 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<DiscordSocketClient>();
             services.AddSingleton<SlashCommandHandler>();
             services.AddSingleton<ISlashCommandService, SlashCommandService>();
+            services.AddSingleton<IEnableCommandService, EnableCommandService>();
+            services.AddSingleton<IScoreCommandService, ScoreCommandService>();
+
             services.AddSingleton<ILovenseService, LovenseService>();
             services.AddSingleton<IEggService, EggService>();
             services.AddSingleton<ILeaderboardService, LeaderboardService>();
@@ -63,7 +66,7 @@ namespace NaughtyBunnyBot.Service.Extensions
             // Transients
             services.AddTransient<ILovenseClient, LovenseClient>();
 
-            // Hosted services
+        // Hosted services
             services.AddHostedService<DiscordClient>();
 
             return services;
