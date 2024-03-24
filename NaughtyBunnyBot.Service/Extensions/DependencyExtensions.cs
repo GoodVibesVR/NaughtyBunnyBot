@@ -59,8 +59,12 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<ILovenseService, LovenseService>();
             services.AddSingleton<IEggService, EggService>();
             services.AddSingleton<ILeaderboardService, LeaderboardService>();
+            services.AddSingleton<IApprovedChannelsService, ApprovedChannelsService>();
             services.AddSingleton<ILeaderboardRepository>(_ =>
                 new LeaderboardRepository(configuration.GetValue<string>("ConnectionStrings:Leaderboard") ??
+                                          throw new ArgumentNullException("connectionString")));
+            services.AddSingleton<IApprovedChannelsRepository>(_ =>
+                new ApprovedChannelsRepository(configuration.GetValue<string>("ConnectionStrings:Leaderboard") ??
                                           throw new ArgumentNullException("connectionString")));
 
             // Transients
