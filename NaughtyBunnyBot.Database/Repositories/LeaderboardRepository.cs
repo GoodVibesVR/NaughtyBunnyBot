@@ -63,7 +63,8 @@ ORDER BY Score
             await using var connection = new SqlConnection(_connectionString);
             return connection.Query<LeaderboardDto>(sql, new
             {
-                GuildId = guildId
+                GuildId = guildId,
+                Top = top
             });
         }
 
