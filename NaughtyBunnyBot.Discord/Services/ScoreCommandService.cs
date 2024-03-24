@@ -42,7 +42,7 @@ public class ScoreCommandService : IScoreCommandService
         {
             foreach (var entry in leaderboard)
             {
-                string userName = "Unknown"; 
+                string userName = "Unknown";
                 var sUser = _discordClient.GetUser(entry.UserId);
 
                 if (sUser is not null)
@@ -53,7 +53,8 @@ public class ScoreCommandService : IScoreCommandService
                 {
                     // Fetch user from REST API
                     var user = await _discordClient.Rest.GetUserAsync((ulong)Int64.Parse(entry.UserId));
-                    if (user is not null) {
+                    if (user is not null)
+                    {
                         userName = user.Username;
                     }
                 }
@@ -61,7 +62,8 @@ public class ScoreCommandService : IScoreCommandService
                 embedBuilder.AddField(userName, entry.Score);
             }
         }
-        else {
+        else
+        {
             embedBuilder.AddField("No entries", "No entries found");
         }
 

@@ -15,9 +15,10 @@ public class SlashCommandHandler
     private readonly ISlashCommandService _commandService;
     private readonly IEnableCommandService _enableCommandService;
     private readonly IScoreCommandService _scoreCommandService;
+    private readonly IChannelCommandService _channelCommandService;
 
     public SlashCommandHandler(ILogger<SlashCommandHandler> logger, IOptions<DiscordConfig> discordSettings, 
-        ISlashCommandService commandService, IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService)
+        ISlashCommandService commandService, IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService, IChannelCommandService channelCommandService)
     {
         _logger = logger;
         _discordSettings = discordSettings.Value;
@@ -25,6 +26,7 @@ public class SlashCommandHandler
 
         _enableCommandService = enableCommandService;
         _scoreCommandService = scoreCommandService;
+        _channelCommandService = channelCommandService;
     }
 
     public async Task SlashCommandExecutedAsync(SocketSlashCommand command)
@@ -33,6 +35,19 @@ public class SlashCommandHandler
         {
             switch (command.Data.Name)
             {
+                case SlashCommandConstants.ChannelAdd:
+                    if (!await IsUserAuthorized(command)) return;
+                    await _channelCommandService.HandleAddChannelCommandAsync(command);
+                    break;
+                case SlashCommandConstants.ChannelRemove:
+                    if (!await IsUserAuthorized(command)) return;
+                    await _channelCommandService.HandleRemoveChannelCommandAsync(command);
+                    break;
+                case SlashCommandConstants.ChannelList:
+                    if (!await IsUserAuthorized(command)) return;
+                    await _channelCommandService.HandleListChannelsCommandAsync(command);
+                    break;
+                
                 case SlashCommandConstants.Enable:
                     if (!await IsUserAuthorized(command)) return;
                     await _enableCommandService.HandleEnableCommandAsync(command);
@@ -41,6 +56,7 @@ public class SlashCommandHandler
                     if (!await IsUserAuthorized(command)) return;
                     await _enableCommandService.HandleDisableCommandAsync(command);
                     break;
+                    
                 case SlashCommandConstants.Leaderboard:
                     await _scoreCommandService.HandleLeaderboardCommandAsync(command);
                     break;

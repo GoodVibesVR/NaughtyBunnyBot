@@ -22,6 +22,16 @@ public class SlashCommandService : ISlashCommandService
         var slashCommands = new[]
         {
             new SlashCommandBuilder()
+                .WithName(SlashCommandConstants.ChannelAdd)
+                .WithDescription(SlashCommandConstants.ChannelAddDescription),
+            new SlashCommandBuilder()
+                .WithName(SlashCommandConstants.ChannelRemove)
+                .WithDescription(SlashCommandConstants.ChannelRemoveDescription),
+            new SlashCommandBuilder()
+                .WithName(SlashCommandConstants.ChannelList)
+                .WithDescription(SlashCommandConstants.ChannelListDescription),
+            
+            new SlashCommandBuilder()
                 .WithName(SlashCommandConstants.Enable)
                 .WithDescription(SlashCommandConstants.EnableDescription),
             new SlashCommandBuilder()

@@ -55,6 +55,7 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<ISlashCommandService, SlashCommandService>();
             services.AddSingleton<IEnableCommandService, EnableCommandService>();
             services.AddSingleton<IScoreCommandService, ScoreCommandService>();
+            services.AddSingleton<IChannelCommandService, ChannelCommandService>();
 
             services.AddSingleton<ILovenseService, LovenseService>();
             services.AddSingleton<IEggService, EggService>();
