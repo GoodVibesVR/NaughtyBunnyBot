@@ -18,6 +18,7 @@
     <ProjectReference Include="..\NaughtyBunnyBot.Egg\NaughtyBunnyBot.Egg.csproj" />
     <ProjectReference Include="..\NaughtyBunnyBot.Leaderboard\NaughtyBunnyBot.Leaderboard.csproj" />
     <ProjectReference Include="..\NaughtyBunnyBot.Database\NaughtyBunnyBot.Database.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Lovense\NaughtyBunnyBot.Lovense.csproj" />
   </ItemGroup>
 
 </Project>

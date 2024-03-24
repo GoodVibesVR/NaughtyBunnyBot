@@ -19,7 +19,12 @@ namespace NaughtyBunnyBot.Discord.Services
 
         public async Task HandleEnableCommandAsync(SocketSlashCommand command)
         {
-            await command.RespondAsync("Enable command is not implemented yet.");
+            // Send a message with an attached button with the ID `join` and the label `Join`
+            var builder = new ComponentBuilder()
+                .WithButton("Join",  "join", ButtonStyle.Primary)
+                .WithButton("Leave", "leave", ButtonStyle.Danger);
+
+            await command.RespondAsync("Join the hunt for the mysterious eggs around the Discord server!", components: builder.Build());
         }
 
         public async Task HandleDisableCommandAsync(SocketSlashCommand command)

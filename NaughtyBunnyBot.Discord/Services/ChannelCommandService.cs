@@ -34,7 +34,8 @@ public class ChannelCommandService : IChannelCommandService
         var channelId = command.ChannelId.Value;
 #pragma warning restore CS8629 // Nullable value type may be null.
 
-        if (await _approvedChannelsService.GetApprovedChannelAsync(guildId.ToString(), channelId.ToString()) != null)
+        var approvedChannel = await _approvedChannelsService.GetApprovedChannelAsync(guildId.ToString(), channelId.ToString());
+        if (approvedChannel is not null)
         {
             await command.RespondAsync($"Channel <#{channelId}> ({channelId}) is **already** in the approved channels list.");
             return;

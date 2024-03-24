@@ -17,7 +17,7 @@ namespace NaughtyBunnyBot.Discord
         private readonly ISlashCommandService _commandService;
 
         public DiscordClient(ILogger<DiscordClient> logger, IOptions<DiscordConfig> discordSettings, DiscordSocketClient discordClient, 
-            SlashCommandHandler commandHandler, ISlashCommandService commandService)
+            SlashCommandHandler commandHandler, ISlashCommandService commandService, ButtonInteractionHandler buttonInteractionHandler)
         {
             _logger = logger;
             _discordSettings = discordSettings.Value;
@@ -25,6 +25,7 @@ namespace NaughtyBunnyBot.Discord
 
             _discordClient = discordClient;
             _discordClient.SlashCommandExecuted += commandHandler.SlashCommandExecutedAsync;
+            _discordClient.ButtonExecuted += buttonInteractionHandler.ButtonExecutedAsync;
             _discordClient.Log += LogReceivedHandler;
             _discordClient.Ready += _discordClient_Ready; // Not for production
         }

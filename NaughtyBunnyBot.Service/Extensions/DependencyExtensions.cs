@@ -52,10 +52,13 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton(_ => discordConfig);
             services.AddSingleton<DiscordSocketClient>();
             services.AddSingleton<SlashCommandHandler>();
+            services.AddSingleton<ButtonInteractionHandler>();
+
             services.AddSingleton<ISlashCommandService, SlashCommandService>();
             services.AddSingleton<IEnableCommandService, EnableCommandService>();
             services.AddSingleton<IScoreCommandService, ScoreCommandService>();
             services.AddSingleton<IChannelCommandService, ChannelCommandService>();
+            services.AddSingleton<IButtonInteractionService, ButtonInteractionService>();
 
             services.AddSingleton<ILovenseService, LovenseService>();
             services.AddSingleton<IEggService, EggService>();
