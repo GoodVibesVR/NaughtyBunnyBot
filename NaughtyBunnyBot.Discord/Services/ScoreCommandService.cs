@@ -1,10 +1,8 @@
-using NaughtyBunnyBot.Database.Services.Abstractions
+using NaughtyBunnyBot.Database.Services.Abstractions;
 using NaughtyBunnyBot.Discord.Services.Abstractions;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-
-
 
 namespace NaughtyBunnyBot.Discord.Services;
 
@@ -40,13 +38,31 @@ public class ScoreCommandService : IScoreCommandService
             .WithCurrentTimestamp()
             .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
-        if (leaderboard is not null)
+        if (leaderboard is not null && leaderboard.Count() > 0)
         {
             foreach (var entry in leaderboard)
             {
-                var user = _discordClient.GetUser(entry.UserId);
-                embedBuilder.AddField(user?.Username ?? "Unknown", entry.Score);
+                string userName = "Unknown"; 
+                var sUser = _discordClient.GetUser(entry.UserId);
+
+                if (sUser is not null)
+                {
+                    userName = sUser.Username;
+                }
+                else
+                {
+                    // Fetch user from REST API
+                    var user = await _discordClient.Rest.GetUserAsync((ulong)Int64.Parse(entry.UserId));
+                    if (user is not null) {
+                        userName = user.Username;
+                    }
+                }
+
+                embedBuilder.AddField(userName, entry.Score);
             }
+        }
+        else {
+            embedBuilder.AddField("No entries", "No entries found");
         }
 
         await command.RespondAsync(embed: embedBuilder.Build());
