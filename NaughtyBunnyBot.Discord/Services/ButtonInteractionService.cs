@@ -22,7 +22,7 @@ namespace NaughtyBunnyBot.Discord.Services
 
         public async Task JoinButtonHandler(SocketMessageComponent component)
         {
-            await component.DeferAsync();
+            await component.DeferAsync(ephemeral: true);
 
             var guildID = component.GuildId.ToString() ?? "0";
 
@@ -51,7 +51,7 @@ Or Connect via the Code:
                 .WithCurrentTimestamp()
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
-            await component.FollowupAsync(embed: embedBuilder.Build());
+            await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
         }
 
         public async Task LeaveButtonHandler(SocketMessageComponent component)
@@ -67,6 +67,37 @@ Or Connect via the Code:
         public async Task InvalidButtonHandler(SocketMessageComponent component)
         {
             await component.RespondAsync("Invalid button interaction.", ephemeral: true);
+        }
+
+
+        public async Task FindEggButtonHandler(SocketMessageComponent component)
+        {
+            await component.DeferAsync(ephemeral: true);
+
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("Easter Egg")
+                .WithDescription("You found the Easter Egg! 🥚")
+                .WithColor(Color.Blue)
+                .WithCurrentTimestamp()
+                .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
+
+            await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
+
+            // ---------------------------------------
+            // Give the person their reward
+
+            var userId = component.User.Id;
+            var userName = component.User.Username;
+
+            await _lovenseService.CommandPatternAsync(
+                userId.ToString(),
+                new Lovense.Dtos.WebCommandPatternDto()
+                {
+                    Rule = "V:1;F:v;S:250#",
+                    Strength = ".....",
+                    Seconds = 5,
+                }
+            );
         }
     }
 }

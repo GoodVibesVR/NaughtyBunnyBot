@@ -7,5 +7,6 @@ namespace NaughtyBunnyBot.Lovense.Abstractions
     {
         Task<WebCommandResponseV2?> GetQrCodeAsync(WebGetQrCodeRequest request);
         Task<WebCommandResponseV2?> CommandAsync(WebCommandRequest request);
+        Task<WebCommandResponseV2?> CommandPatternAsync(WebCommandPatternRequest request);
     }
 }

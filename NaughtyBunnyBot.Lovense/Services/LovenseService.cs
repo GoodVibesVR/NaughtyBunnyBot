@@ -56,6 +56,20 @@ namespace NaughtyBunnyBot.Lovense.Services
             });
         }
 
+        public async Task<WebCommandResponseV2?> CommandPatternAsync(string userId, WebCommandPatternDto command)
+        {
+            _logger.LogDebug($"Received a command pattern request: {JsonConvert.SerializeObject(command)}");
+
+            return await _lovenseClient.CommandPatternAsync(new WebCommandPatternRequest()
+            {
+                UserId = userId,
+                Strength = command.Strength,
+                Rule = command.Rule,
+                Seconds = command.Seconds,
+                Toy = command.Toy
+            });
+        }
+
         //public async Task HandleCallBackAsync(LovenseCallbackDto callback)
         //{
         //    var session = await _sessionService.GetSessionAsync(callback.Uid!);

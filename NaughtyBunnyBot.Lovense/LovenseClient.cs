@@ -52,6 +52,27 @@ namespace NaughtyBunnyBot.Lovense
             return result;
         }
 
+        public async Task<WebCommandResponseV2?> CommandPatternAsync(WebCommandPatternRequest request)
+        {
+            const string path = "lan/v2/command";
+            var result = await PostAsync<WebCommandResponseV2>(path,
+                new StringContent(JsonConvert.SerializeObject(new
+                {
+                    token = _developerToken,
+                    uid = request.UserId,
+                    command = "Pattern",
+
+                    rule = request.Rule,
+                    stength = request.Strength,
+                    timeSec = request.Seconds,
+
+                    apiVer = 2,
+                    toy = request.Toy
+                }), Encoding.UTF8, "application/json"));
+
+            return result;
+        }
+
         private async Task<T?> PostAsync<T>(string path, HttpContent content)
         {
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
