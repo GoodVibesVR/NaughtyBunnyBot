@@ -19,6 +19,11 @@ public class ButtonInteractionHandler
 
     public async Task ButtonExecutedAsync(SocketMessageComponent component)
     {
+        if (component.Data.CustomId.IndexOf("find-") == 0) {
+            await _buttonInteractionService.FindEggButtonHandler(component);
+            return;
+        }
+
         switch (component.Data.CustomId)
         {
             case "join":

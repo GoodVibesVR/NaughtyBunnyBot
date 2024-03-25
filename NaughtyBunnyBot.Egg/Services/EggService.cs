@@ -21,5 +21,10 @@ namespace NaughtyBunnyBot.Egg.Services
 
             return _eggs[next];
         }
+
+        public EggDto? GetEggByName(string name)
+        {
+            return _eggs.FirstOrDefault(x => x.Name == name);
+        }
     }
 }

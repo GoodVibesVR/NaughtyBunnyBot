@@ -4,6 +4,8 @@ using NaughtyBunnyBot.Lovense.Services.Abstractions;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using NaughtyBunnyBot.Egg.Services.Abstractions;
+using NaughtyBunnyBot.Database.Services;
 
 namespace NaughtyBunnyBot.Discord.Services
 {
@@ -12,12 +14,17 @@ namespace NaughtyBunnyBot.Discord.Services
         private readonly ILogger<EnableCommandService> _logger;
         private readonly DiscordSocketClient _discordClient;
         private readonly ILovenseService _lovenseService;
+        private readonly IEggService _eggService;
+        private readonly LeaderboardService _leaderboardService;
 
-        public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient, ILovenseService lovenseService)
+        public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient,
+            ILovenseService lovenseService, IEggService eggService, LeaderboardService leaderboardService)
         {
             _logger = logger;
             _discordClient = discordClient;
             _lovenseService = lovenseService;
+            _eggService = eggService;
+            _leaderboardService = leaderboardService;
         }
 
         public async Task JoinButtonHandler(SocketMessageComponent component)
@@ -84,18 +91,31 @@ Or Connect via the Code:
             await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
 
             // ---------------------------------------
-            // Give the person their reward
+            // Award their points
 
-            var userId = component.User.Id;
-            var userName = component.User.Username;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            _leaderboardService.UpLeaderboardEntryScore(
+                component.GuildId.Value.ToString(), component.User.Id.ToString()
+            );
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+            // ---------------------------------------
+            // Give the person the pattern
+
+            var eggName = component.Data.CustomId.Replace("find-", string.Empty);
+            var currentEgg = _eggService.GetEggByName(eggName);
+            if (currentEgg is null) {
+                await component.FollowupAsync("Easter Egg not found? Something bad has happened...", ephemeral: true);
+                return;
+            }
 
             await _lovenseService.CommandPatternAsync(
-                userId.ToString(),
+                component.User.Id.ToString(),
                 new Lovense.Dtos.WebCommandPatternDto()
                 {
                     Rule = "V:1;F:v;S:250#",
-                    Strength = ".....",
-                    Seconds = 5,
+                    Strength = currentEgg.Pattern,
+                    Seconds = 12,
                 }
             );
         }
