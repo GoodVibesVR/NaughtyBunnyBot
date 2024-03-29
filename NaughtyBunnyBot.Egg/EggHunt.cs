@@ -78,11 +78,12 @@ namespace NaughtyBunnyBot.Egg
             }
         }
 
-        public async Task StopEggHuntForGuildAsync(string guildId)
+        public Task StopEggHuntForGuild(string guildId)
         {
-            await Task.Run(() => _eggHuntService.DisableEggHuntForGuild(guildId));
-            
+            _eggHuntService.DisableEggHuntForGuild(guildId);
             _logger.LogDebug($"Egg hunt stopped for guild with ID {guildId}, no more eggs will be dropped, any existing eggs can still be collected.");
+
+            return Task.CompletedTask;
         }
 
         private async Task BuildEggEmbed(EggDto egg, string channelId)

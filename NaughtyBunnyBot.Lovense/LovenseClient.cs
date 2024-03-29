@@ -35,18 +35,15 @@ namespace NaughtyBunnyBot.Lovense
         public async Task<WebCommandResponseV2?> CommandAsync(WebCommandRequest request)
         {
             const string path = "lan/v2/command";
-            //var @params = BuildCommandSpecificParameters(request);
 
             var result = await PostAsync<WebCommandResponseV2>(path,
                 new StringContent(JsonConvert.SerializeObject(new
                 {
                     token = _developerToken,
-                    uid = request.UserId,
+                    uid = string.Join(",", request.UserIds!),
                     command = "Function",
-                    action = $"{request.Command.ToString()}:{request.Value1}",
-                    timeSec = request.Seconds,
-                    apiVer = 1,
-                    toy = request.Toy
+                    action = $"All:{request.Strength}",
+                    timeSec = request.Seconds
                 }), Encoding.UTF8, "application/json"));
 
             return result;
@@ -59,15 +56,11 @@ namespace NaughtyBunnyBot.Lovense
                 new StringContent(JsonConvert.SerializeObject(new
                 {
                     token = _developerToken,
-                    uid = request.UserId,
+                    uid = string.Join(",", request.UserIds!),
                     command = "Pattern",
-
                     rule = request.Rule,
-                    stength = request.Strength,
+                    strength = request.Strength,
                     timeSec = request.Seconds,
-
-                    apiVer = 2,
-                    toy = request.Toy
                 }), Encoding.UTF8, "application/json"));
 
             return result;
@@ -85,25 +78,6 @@ namespace NaughtyBunnyBot.Lovense
 
             throw new GeneralLovenseException(!string.IsNullOrEmpty(json) ? json : "No json data provided",
                 Convert.ToInt32(response.StatusCode));
-        }
-
-        private async Task<GetQrCodeResponse> GetQrCodeImageAsync(WebCommandResponseV2 informationResponse)
-        {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            var response = await client.GetAsync(informationResponse.Data!.QrCode);
-            var responseStream = await response.Content.ReadAsStreamAsync();
-            var dataStream = new MemoryStream();
-            await responseStream.CopyToAsync(dataStream);
-            dataStream.Position = 0;
-
-            return new GetQrCodeResponse()
-            {
-                DataType = response.Content.Headers.ContentType?.ToString(),
-                Data = dataStream,
-                Code = informationResponse.Data.Code
-            };
         }
     }
 }

@@ -41,32 +41,28 @@ namespace NaughtyBunnyBot.Lovense.Services
             };
         }
 
-        public async Task<WebCommandResponseV2?> CommandAsync(string userId, WebCommandDto command)
+        public async Task<WebCommandResponseV2?> CommandAsync(List<string> userIds, WebCommandDto command)
         {
             _logger.LogDebug($"Received a command request: {JsonConvert.SerializeObject(command)}");
 
             return await _lovenseClient.CommandAsync(new WebCommandRequest()
             {
-                UserId = userId,
-                Command = command.Command,
-                Value1 = command.Value1,
-                Value2 = command.Value2,
+                UserIds = userIds,
+                Strength = command.Strength,
                 Seconds = command.Seconds,
-                Toy = command.Toy
             });
         }
 
-        public async Task<WebCommandResponseV2?> CommandPatternAsync(string userId, WebCommandPatternDto command)
+        public async Task<WebCommandResponseV2?> CommandPatternAsync(List<string> userIds, WebCommandPatternDto command)
         {
             _logger.LogDebug($"Received a command pattern request: {JsonConvert.SerializeObject(command)}");
 
             return await _lovenseClient.CommandPatternAsync(new WebCommandPatternRequest()
             {
-                UserId = userId,
+                UserIds = userIds,
                 Strength = command.Strength,
                 Rule = command.Rule,
                 Seconds = command.Seconds,
-                Toy = command.Toy
             });
         }
     }

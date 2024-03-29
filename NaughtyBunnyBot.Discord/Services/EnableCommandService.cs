@@ -1,5 +1,4 @@
-﻿using NaughtyBunnyBot.Common.Extensions;
-using NaughtyBunnyBot.Discord.Services.Abstractions;
+﻿using NaughtyBunnyBot.Discord.Services.Abstractions;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -35,8 +34,7 @@ namespace NaughtyBunnyBot.Discord.Services
 
         public async Task HandleDisableCommandAsync(SocketSlashCommand command)
         {
-            Task.Run(() => _eggHunt.StopEggHuntForGuildAsync(command.GuildId.ToString()!));
-
+            await _eggHunt.StopEggHuntForGuild(command.GuildId.ToString()!);
             await command.RespondAsync("Egg hunt has been disabled for this server.");
         }
     }

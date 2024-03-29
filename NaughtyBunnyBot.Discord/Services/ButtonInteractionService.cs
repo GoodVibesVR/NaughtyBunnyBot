@@ -71,7 +71,7 @@ Or Connect via the Code:
                 .WithCurrentTimestamp()
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
-            _eggHuntService.AddParticipantToEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
+            _eggHuntService.AddParticipantToEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
             await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
         }
 
@@ -79,7 +79,7 @@ Or Connect via the Code:
         {
             await component.DeferAsync();
 
-            _eggHuntService.RemoveParticipantFromEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
+            _eggHuntService.RemoveParticipantFromEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
 
             await component.FollowupAsync("Successfully left, we hope you join us again later.", ephemeral: true);
         }
@@ -118,7 +118,7 @@ Or Connect via the Code:
             await component.DeferAsync(ephemeral: true);
 
             // Check if the user is not participating in the event
-            var isParticipating = _eggHuntService.IsParticipantInEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
+            var isParticipating = _eggHuntService.IsParticipantInEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
             if (!isParticipating)
             {
                 await component.FollowupAsync("You are not participating in the Easter Egg Hunt.", ephemeral: true);
@@ -213,7 +213,7 @@ Or Connect via the Code:
             }
 
             await _lovenseService.CommandPatternAsync(
-                component.User.Id.ToString(),
+               new List<string>(){ component.User.Id.ToString() },
                 new Lovense.Dtos.WebCommandPatternDto()
                 {
                     Rule = "V:1;F:v;S:250#",
