@@ -29,10 +29,12 @@ namespace NaughtyBunnyBot.Discord.Services
         public async Task JoinButtonHandler(SocketMessageComponent component)
         {
             await component.DeferAsync(ephemeral: true);
-            var guildId = component.GuildId.ToString() ?? "0";
+
+            //var guildId = component.GuildId.ToString() ?? "0";
+            var uId = component.User.Id.ToString();
 
             // uToken isn't being used as we aren't verifying it.
-            var qrCodeDetails = await _lovenseService.GenerateQrCodeAsync(guildId, guildId, guildId);
+            var qrCodeDetails = await _lovenseService.GenerateQrCodeAsync(uId, uId, uId);
             if (qrCodeDetails == null)
             {
                 await component.FollowupAsync("Failed to generate QR code. Please try again later.", ephemeral: true);
@@ -73,6 +75,29 @@ Or Connect via the Code:
             await component.RespondAsync("Invalid button interaction.", ephemeral: true);
         }
 
+                public async Task SendTestEggButtonHandler(SocketMessageComponent component)
+        {
+            await component.DeferAsync(ephemeral: true);
+
+            var randomEgg = _eggService.GetRandomEgg();
+
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle(randomEgg.Name)
+                .WithDescription(randomEgg.Description)
+                .WithImageUrl(randomEgg.ImageUrl)
+                .WithColor(Color.Purple)
+                .WithCurrentTimestamp()
+                .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
+
+            var ComponentBuilder = new ComponentBuilder()
+                .WithButton("Collect Egg", $"find-{randomEgg.Name}", ButtonStyle.Success);
+
+            await component.FollowupAsync(
+                embed: embedBuilder.Build(), 
+                components: ComponentBuilder.Build(),
+                ephemeral: true
+            );
+        }
 
         public async Task FindEggButtonHandler(SocketMessageComponent component)
         {

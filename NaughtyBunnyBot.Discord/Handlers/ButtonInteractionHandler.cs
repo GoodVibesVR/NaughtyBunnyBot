@@ -31,6 +31,11 @@ public class ButtonInteractionHandler
                 await _buttonInteractionService.LeaveButtonHandler(component);
                 break;
 
+            case "test-egg":
+                await _buttonInteractionService.SendTestEggButtonHandler(component);
+                break;
+
+
             default:
                 await _buttonInteractionService.InvalidButtonHandler(component);
                 break;

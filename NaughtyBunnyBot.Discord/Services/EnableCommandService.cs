@@ -22,6 +22,7 @@ namespace NaughtyBunnyBot.Discord.Services
             // Send a message with an attached button with the ID `join` and the label `Join`
             var builder = new ComponentBuilder()
                 .WithButton("Join",  "join", ButtonStyle.Primary)
+                .WithButton("Test Egg", "test-egg", ButtonStyle.Secondary) // Test spawn an egg
                 .WithButton("Leave", "leave", ButtonStyle.Danger);
 
             await command.RespondAsync("Join the hunt for the mysterious eggs around the Discord server!", components: builder.Build());

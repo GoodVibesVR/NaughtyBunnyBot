@@ -97,6 +97,14 @@ public class SlashCommandHandler
             .WithColor(Color.Red)
             .WithCurrentTimestamp();
 
-        await command.RespondAsync(embed: embedBuilder.Build());
+        // Check if defered
+        if (command.HasResponded)
+        {
+            await command.FollowupAsync(embed: embedBuilder.Build());
+            return;
+        }
+        else {
+            await command.RespondAsync(embed: embedBuilder.Build());
+        }
     }
 }

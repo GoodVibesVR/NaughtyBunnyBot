@@ -9,4 +9,6 @@ public interface IButtonInteractionService
     Task InvalidButtonHandler(SocketMessageComponent component);
 
     Task FindEggButtonHandler(SocketMessageComponent component);
+
+    Task SendTestEggButtonHandler(SocketMessageComponent component);
 }
