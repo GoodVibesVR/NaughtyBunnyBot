@@ -132,15 +132,7 @@ Or Connect via the Code:
             {
                 await component.FollowupAsync("This Easter Egg has expired.", ephemeral: true);
 
-                // Edit the original message to remove the button
-                var originalMessage = component.Message;
-                var componentBuilder = new ComponentBuilder()
-                    .WithButton("All Easter Eggs have been claimed", "______", ButtonStyle.Danger, disabled: true);
-
-                await originalMessage.ModifyAsync(x =>
-                {
-                    x.Components = componentBuilder.Build();
-                });
+                await DisableFindEggButton(component);
                 return;
             }
 
@@ -151,16 +143,7 @@ Or Connect via the Code:
             {
                 await component.FollowupAsync("All Easter Eggs have been claimed.", ephemeral: true);
 
-                // Edit the original message to remove the button
-                var originalMessage = component.Message;
-                var componentBuilder = new ComponentBuilder()
-                    .WithButton("All Easter Eggs have been claimed", "______", ButtonStyle.Danger, disabled: true)
-                    .Build();
-
-                await originalMessage.ModifyAsync(x =>
-                {
-                    x.Components = componentBuilder;
-                });
+                await DisableFindEggButton(component);
                 return;
             }
 
@@ -221,6 +204,28 @@ Or Connect via the Code:
                     Seconds = 12,
                 }
             );
+        }
+
+        private async Task DisableFindEggButton(SocketMessageComponent component)
+        {
+            var componentBuilder = new ComponentBuilder()
+                .WithButton("No more eggs left.", "______", ButtonStyle.Danger, disabled: true)
+                .Build();
+
+            // Get the channel
+            var channel = await _discordClient.GetChannelAsync(component.ChannelId??0);
+
+            // Get the message
+            if (channel is ITextChannel textChannel)
+            {
+                var message = await textChannel.GetMessageAsync(component.Message.Id);
+                if (message is IUserMessage userMessage)
+                {
+                    await userMessage.ModifyAsync(m => {
+                        m.Components = componentBuilder;
+                    });
+                }
+            }
         }
     }
 }
