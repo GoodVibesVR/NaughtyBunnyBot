@@ -32,15 +32,15 @@ namespace NaughtyBunnyBot.Discord.Services
             var guildId = component.GuildId.ToString() ?? "0";
 
             // uToken isn't being used as we aren't verifying it.
-            var qrCodeDetails = _lovenseService.GenerateQrCodeAsync(guildId, guildId, guildId);
-            if (qrCodeDetails == null || qrCodeDetails.Result == null)
+            var qrCodeDetails = await _lovenseService.GenerateQrCodeAsync(guildId, guildId, guildId);
+            if (qrCodeDetails == null)
             {
                 await component.FollowupAsync("Failed to generate QR code. Please try again later.", ephemeral: true);
                 return;
             }
 
-            var qrCode = qrCodeDetails.Result.ImageUrl;
-            var qrCodeUniqueCode = qrCodeDetails.Result.UniqueCode;
+            var qrCode = qrCodeDetails.ImageUrl;
+            var qrCodeUniqueCode = qrCodeDetails.UniqueCode;
 
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("Lovense QR Code")
