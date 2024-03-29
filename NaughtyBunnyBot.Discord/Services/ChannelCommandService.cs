@@ -81,7 +81,7 @@ public class ChannelCommandService : IChannelCommandService
         var embedBuilder = new EmbedBuilder()
             .WithTitle("Approved Channels")
             .WithDescription("List of approved channels")
-            .WithColor(Color.Blue)
+            .WithColor(Color.DarkerGrey)
             .WithCurrentTimestamp()
             .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 

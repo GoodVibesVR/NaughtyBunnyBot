@@ -67,8 +67,7 @@ Or Connect via the Code:
 **Unique Code:** {qrCodeUniqueCode}"
                 )
                 .WithImageUrl(qrCode)
-                .WithColor(Color.Blue)
-                .WithCurrentTimestamp()
+                .WithColor(215, 42, 119)    // Lovense Pink
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
             _eggHuntService.AddParticipantToEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
@@ -100,7 +99,6 @@ Or Connect via the Code:
                 .WithDescription(randomEgg.Description)
                 .WithImageUrl(randomEgg.ImageUrl)
                 .WithColor(Color.Purple)
-                .WithCurrentTimestamp()
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
             var ComponentBuilder = new ComponentBuilder()
@@ -169,8 +167,7 @@ Or Connect via the Code:
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("Easter Egg")
                 .WithDescription("You found the Easter Egg! 🥚")
-                .WithColor(Color.Blue)
-                .WithCurrentTimestamp()
+                .WithColor(Color.LighterGrey)
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
             await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);

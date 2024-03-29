@@ -57,7 +57,7 @@ SELECT TOP(@Top)
     Score
 FROM Leaderboard
 WHERE GuildId = @GuildId
-ORDER BY Score
+ORDER BY Score DESC
 ";
 
             await using var connection = new SqlConnection(_connectionString);
