@@ -1,6 +1,7 @@
 ﻿using NaughtyBunnyBot.Lovense.Settings;
 using Discord.WebSocket;
 using Discord;
+using NaughtyBunnyBot.Cache.Services;
 using NaughtyBunnyBot.Cache.Services.Abstractions;
 using NaughtyBunnyBot.Database.Repositories;
 using NaughtyBunnyBot.Database.Repositories.Abstractions;
@@ -13,11 +14,15 @@ using NaughtyBunnyBot.Discord.Services;
 using NaughtyBunnyBot.Lovense.Services.Abstractions;
 using NaughtyBunnyBot.Lovense.Services;
 using NaughtyBunnyBot.Discord;
+using NaughtyBunnyBot.Discord.Sender;
 using NaughtyBunnyBot.Egg.Services;
 using NaughtyBunnyBot.Egg.Services.Abstractions;
 using NaughtyBunnyBot.Egg.Settings;
 using NaughtyBunnyBot.Lovense;
 using NaughtyBunnyBot.Lovense.Abstractions;
+using NaughtyBunnyBot.Discord.Sender.Abstractions;
+using NaughtyBunnyBot.Egg;
+using NaughtyBunnyBot.Egg.Abstractions;
 
 namespace NaughtyBunnyBot.Service.Extensions
 {
@@ -41,6 +46,8 @@ namespace NaughtyBunnyBot.Service.Extensions
                 }
             );
 
+            services.AddMemoryCache();
+
             services.Configure<LovenseConfig>(lovenseSection);
             services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
             services.Configure<EggConfig>(configuration.GetSection("Egg"));
@@ -60,10 +67,13 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<IScoreCommandService, ScoreCommandService>();
             services.AddSingleton<IChannelCommandService, ChannelCommandService>();
             services.AddSingleton<IButtonInteractionService, ButtonInteractionService>();
+            services.AddSingleton<IDiscordMessageSender, DiscordMessageSender>();
 
+            services.AddSingleton<IEggHunt, EggHunt>();
             services.AddSingleton<ILovenseService, LovenseService>();
-            services.AddSingleton<IMemoryCacheService, IMemoryCacheService>();
+            services.AddSingleton<IMemoryCacheService, MemoryCacheService>();
             services.AddSingleton<IEggService, EggService>();
+            services.AddSingleton<IEggHuntService, EggHuntService>();
             services.AddSingleton<ILeaderboardService, LeaderboardService>();
             services.AddSingleton<IApprovedChannelsService, ApprovedChannelsService>();
             services.AddSingleton<ILeaderboardRepository>(_ =>

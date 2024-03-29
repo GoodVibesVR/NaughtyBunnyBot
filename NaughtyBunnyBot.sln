@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NaughtyBunnyBot.Egg", "Naug
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaughtyBunnyBot.Cache", "NaughtyBunnyBot.Cache\NaughtyBunnyBot.Cache.csproj", "{830CDB95-6EB4-45CB-B9A9-2C9FEF070126}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaughtyBunnyBot.Discord.Sender", "NaughtyBunnyBot.Discord.Sender\NaughtyBunnyBot.Discord.Sender.csproj", "{556CA790-81ED-422E-9766-FF93933A6908}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{830CDB95-6EB4-45CB-B9A9-2C9FEF070126}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{830CDB95-6EB4-45CB-B9A9-2C9FEF070126}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{830CDB95-6EB4-45CB-B9A9-2C9FEF070126}.Release|Any CPU.Build.0 = Release|Any CPU
+		{556CA790-81ED-422E-9766-FF93933A6908}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{556CA790-81ED-422E-9766-FF93933A6908}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{556CA790-81ED-422E-9766-FF93933A6908}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{556CA790-81ED-422E-9766-FF93933A6908}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,15 +14,17 @@ namespace NaughtyBunnyBot.Discord.Services
         private readonly DiscordSocketClient _discordClient;
         private readonly ILovenseService _lovenseService;
         private readonly IEggService _eggService;
+        private readonly IEggHuntService _eggHuntService;
         private readonly ILeaderboardService _leaderboardService;
 
         public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient,
-            ILovenseService lovenseService, IEggService eggService, ILeaderboardService leaderboardService)
+            ILovenseService lovenseService, IEggService eggService, IEggHuntService eggHuntService, ILeaderboardService leaderboardService)
         {
             _logger = logger;
             _discordClient = discordClient;
             _lovenseService = lovenseService;
             _eggService = eggService;
+            _eggHuntService = eggHuntService;
             _leaderboardService = leaderboardService;
         }
 
@@ -57,6 +59,7 @@ Or Connect via the Code:
                 .WithCurrentTimestamp()
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
+            _eggHuntService.AddParticipantToEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
             await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
         }
 
@@ -75,7 +78,7 @@ Or Connect via the Code:
             await component.RespondAsync("Invalid button interaction.", ephemeral: true);
         }
 
-                public async Task SendTestEggButtonHandler(SocketMessageComponent component)
+        public async Task SendTestEggButtonHandler(SocketMessageComponent component)
         {
             await component.DeferAsync(ephemeral: true);
 
@@ -93,7 +96,7 @@ Or Connect via the Code:
                 .WithButton("Collect Egg", $"find-{randomEgg.Name}", ButtonStyle.Success);
 
             await component.FollowupAsync(
-                embed: embedBuilder.Build(), 
+                embed: embedBuilder.Build(),
                 components: ComponentBuilder.Build(),
                 ephemeral: true
             );
@@ -126,7 +129,8 @@ Or Connect via the Code:
 
             var eggName = component.Data.CustomId.Replace("find-", string.Empty);
             var currentEgg = _eggService.GetEggByName(eggName);
-            if (currentEgg is null) {
+            if (currentEgg is null)
+            {
                 await component.FollowupAsync("Easter Egg not found? Something bad has happened...", ephemeral: true);
                 return;
             }

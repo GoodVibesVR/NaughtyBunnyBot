@@ -41,51 +41,5 @@ namespace NaughtyBunnyBot.Egg.Services
         {
             return _eggs.FirstOrDefault(x => x.Name == name);
         }
-
-        public EggHuntDto? GetEggHuntForGuild(string guildId)
-        {
-            var eggHunt = _memoryCache.Get<EggHuntDto>(guildId);
-            return eggHunt;
-        }
-
-        public bool AddParticipantToEggHunt(string guildId, string userId)
-        {
-            var eggHunt = _memoryCache.Get<EggHuntDto>(guildId);
-            if (eggHunt is not { Enabled: true })
-            {
-                return false;
-            }
-
-            var participant = eggHunt.Participants.FirstOrDefault(p => p == userId);
-            if (participant != null)
-            {
-                return false;
-            }
-
-            eggHunt.Participants.Add(userId);
-            _memoryCache.Set(guildId, eggHunt);
-
-            return true;
-        }
-
-        public bool RemoveParticipantFromEggHunt(string guildId, string userId)
-        {
-            var eggHunt = _memoryCache.Get<EggHuntDto>(guildId);
-            if (eggHunt is not { Enabled: true })
-            {
-                return false;
-            }
-
-            var participant = eggHunt.Participants.FirstOrDefault(p => p == userId);
-            if (participant != null)
-            {
-                return false;
-            }
-
-            eggHunt.Participants.Remove(userId);
-            _memoryCache.Set(guildId, eggHunt);
-
-            return true;
-        }
     }
 }
