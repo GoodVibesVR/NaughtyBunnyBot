@@ -22,7 +22,7 @@ namespace NaughtyBunnyBot.Lovense.Responses
     public class GetQrCodeResponse
     {
         public string? DataType { get; set; }
-        public string? Code { get; set; }
+        public int? Code { get; set; }
         public MemoryStream? Data { get; set; }
     }
 
@@ -59,6 +59,6 @@ namespace NaughtyBunnyBot.Lovense.Responses
         public string? QrCode { get; set; }
 
         [JsonProperty("code")]
-        public string? Code { get; set; }
+        public int? Code { get; set; }
     }
 }

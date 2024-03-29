@@ -37,7 +37,7 @@ namespace NaughtyBunnyBot.Lovense.Services
             {
                 ImageUrl = result.Data!.QrCode,
                 Result = true,
-                UniqueCode = result.Code
+                UniqueCode = result.Data.Code
             };
         }
 
@@ -69,28 +69,5 @@ namespace NaughtyBunnyBot.Lovense.Services
                 Toy = command.Toy
             });
         }
-
-        //public async Task HandleCallBackAsync(LovenseCallbackDto callback)
-        //{
-        //    var session = await _sessionService.GetSessionAsync(callback.Uid!);
-        //    if (session == null)
-        //    {
-        //        return;
-        //    }
-
-        //    if (callback.UToken != session.UserToken)
-        //    {
-        //        _logger.LogDebug($"Session token and callback token differs for session {callback.Uid}");
-        //        return;
-        //    }
-
-        //    if (!string.IsNullOrEmpty(callback.Domain))
-        //    {
-        //        callback.Domain = callback.Domain.Replace(".lovense.club", "").Replace("-", ".");
-        //    }
-
-        //    await _toysCacheClient.SetAsync(callback.Uid, callback); // TODO: Do we actually need this one?
-        //    await _toysCacheClient.PublishMessageAsync(ChannelConstants.SignalRSendCallbackToClientChannelConstant, callback);
-        //}
     }
 }

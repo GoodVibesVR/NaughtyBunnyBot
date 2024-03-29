@@ -29,12 +29,10 @@ namespace NaughtyBunnyBot.Discord.Services
         public async Task JoinButtonHandler(SocketMessageComponent component)
         {
             await component.DeferAsync(ephemeral: true);
-
-            var guildID = component.GuildId.ToString() ?? "0";
+            var guildId = component.GuildId.ToString() ?? "0";
 
             // uToken isn't being used as we aren't verifying it.
-            var qrCodeDetails = _lovenseService.GenerateQrCodeAsync(guildID, guildID, guildID); 
-
+            var qrCodeDetails = _lovenseService.GenerateQrCodeAsync(guildId, guildId, guildId);
             if (qrCodeDetails == null || qrCodeDetails.Result == null)
             {
                 await component.FollowupAsync("Failed to generate QR code. Please try again later.", ephemeral: true);

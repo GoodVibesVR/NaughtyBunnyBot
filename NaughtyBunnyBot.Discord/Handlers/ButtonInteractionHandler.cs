@@ -1,7 +1,4 @@
-using NaughtyBunnyBot.Database.Services.Abstractions;
 using NaughtyBunnyBot.Discord.Services.Abstractions;
-using NaughtyBunnyBot.Lovense.Services.Abstractions;
-using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
@@ -19,7 +16,7 @@ public class ButtonInteractionHandler
 
     public async Task ButtonExecutedAsync(SocketMessageComponent component)
     {
-        if (component.Data.CustomId.IndexOf("find-") == 0) {
+        if (component.Data.CustomId.IndexOf("find-", StringComparison.Ordinal) == 0) {
             await _buttonInteractionService.FindEggButtonHandler(component);
             return;
         }
