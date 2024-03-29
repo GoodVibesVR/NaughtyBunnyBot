@@ -79,7 +79,7 @@ Or Connect via the Code:
         {
             await component.DeferAsync();
 
-            _eggService.RemoveParticipantFromEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
+            _eggHuntService.RemoveParticipantFromEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
 
             await component.FollowupAsync("Successfully left, we hope you join us again later.", ephemeral: true);
         }
@@ -118,10 +118,29 @@ Or Connect via the Code:
             await component.DeferAsync(ephemeral: true);
 
             // Check if the user is not participating in the event
-            var isParticipating = _eggService.IsParticipantInEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
+            var isParticipating = _eggHuntService.IsParticipantInEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
             if (!isParticipating)
             {
                 await component.FollowupAsync("You are not participating in the Easter Egg Hunt.", ephemeral: true);
+                return;
+            }
+
+
+            // Check if the message is older than 10 minutes
+            // This is a safety check to prevent people from claiming eggs after the Cache possibily has expired to know if the egg has been fully claimed.
+            if (DateTimeOffset.UtcNow - component.Message.CreatedAt > TimeSpan.FromMinutes(10))
+            {
+                await component.FollowupAsync("This Easter Egg has expired.", ephemeral: true);
+
+                // Edit the original message to remove the button
+                var originalMessage = component.Message;
+                var componentBuilder = new ComponentBuilder()
+                    .WithButton("All Easter Eggs have been claimed", "______", ButtonStyle.Danger, disabled: true);
+
+                await originalMessage.ModifyAsync(x =>
+                {
+                    x.Components = componentBuilder.Build();
+                });
                 return;
             }
 
@@ -133,13 +152,14 @@ Or Connect via the Code:
                 await component.FollowupAsync("All Easter Eggs have been claimed.", ephemeral: true);
 
                 // Edit the original message to remove the button
-                var originalMessage = component.Message as IUserMessage;
+                var originalMessage = component.Message;
                 var componentBuilder = new ComponentBuilder()
-                    .WithButton("All Easter Eggs have been claimed", "______", ButtonStyle.Danger, disabled: true);
+                    .WithButton("All Easter Eggs have been claimed", "______", ButtonStyle.Danger, disabled: true)
+                    .Build();
 
                 await originalMessage.ModifyAsync(x =>
                 {
-                    x.Components = componentBuilder.Build();
+                    x.Components = componentBuilder;
                 });
                 return;
             }

@@ -9,4 +9,5 @@ public interface IEggHuntService
     EggHuntDto DisableEggHuntForGuild(string guildId);
     bool AddParticipantToEggHunt(string guildId, string userId);
     bool RemoveParticipantFromEggHunt(string guildId, string userId);
+    bool IsParticipantInEggHunt(string guildId, string userId);
 }

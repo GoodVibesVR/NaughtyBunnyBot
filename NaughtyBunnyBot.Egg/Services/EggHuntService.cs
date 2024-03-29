@@ -92,4 +92,15 @@ public class EggHuntService : IEggHuntService
 
         return true;
     }
+
+    public bool IsParticipantInEggHunt(string guildId, string userId)
+    {
+        var eggHunt = _memoryCache.Get<EggHuntDto>(guildId);
+        if (eggHunt is not { Enabled: true })
+        {
+            return false;
+        }
+
+        return eggHunt.Participants.Contains(userId);
+    }
 }

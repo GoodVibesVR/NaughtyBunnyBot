@@ -63,9 +63,11 @@ namespace NaughtyBunnyBot.Egg
 
                 var channels = await _channelsService.GetApprovedChannelByGuildAsync(guildId);
                 var channelsArr = channels.ToArray();
-                var eggChannel = _random.Next(channelsArr.Count()) - 1;
+                var eggChannel = _random.Next(channelsArr.Count());
 
-                for (var i = 0; i < channelsArr.Count() - 1; i++)
+                var maxChannels = channelsArr.Count() > 5 ? 5 : channelsArr.Count();
+
+                for (var i = 0; i < maxChannels; i++)
                 {
                     if (i == eggChannel)
                     {
@@ -76,6 +78,13 @@ namespace NaughtyBunnyBot.Egg
                     await BuildDudEmbed(_eggService.GetRandomDud(), channelsArr[i].ChannelId);
                 }
             }
+        }
+
+        public async Task StopEggHuntForGuildAsync(string guildId)
+        {
+            await Task.Run(() => _eggHuntService.DisableEggHuntForGuild(guildId));
+            
+            _logger.LogDebug($"Egg hunt stopped for guild with ID {guildId}, no more eggs will be dropped, any existing eggs can still be collected.");
         }
 
         private async Task BuildEggEmbed(EggDto egg, string channelId)
