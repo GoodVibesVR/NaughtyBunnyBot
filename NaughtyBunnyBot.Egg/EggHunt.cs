@@ -118,6 +118,12 @@ namespace NaughtyBunnyBot.Egg
         private async Task StartVibeLoop(string guildId, List<string> participants)
         {
             var strength = 1;
+            await _lovenseService.CommandAsync(participants, new WebCommandDto()
+            {
+                Strength = strength,
+                Seconds = 4
+            });
+
             for (var i = 0; i < _config.VibeLoopSeconds; i++)
             {
                 var ongoing = _cacheService.Get<bool>($"{guildId}-hunt-ongoing");
@@ -126,14 +132,14 @@ namespace NaughtyBunnyBot.Egg
                 if (i % 3 == 0)
                 {
                     strength = strength + 1 > 20 ? 20 : strength + 1;
+
+                    await _lovenseService.CommandAsync(participants, new WebCommandDto()
+                    {
+                        Strength = strength,
+                        Seconds = 4
+                    });
                 }
-
-                await _lovenseService.CommandAsync(participants, new WebCommandDto()
-                {
-                    Strength = strength,
-                    Seconds = 4
-                });
-
+                
                 await Task.Delay(1000);
             }
 
