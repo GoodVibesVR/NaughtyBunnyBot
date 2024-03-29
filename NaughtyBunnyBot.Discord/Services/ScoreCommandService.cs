@@ -28,46 +28,36 @@ public class ScoreCommandService : IScoreCommandService
             return;
         }
 
+        await command.DeferAsync();
+
         var guildId = command.GuildId.Value;
         var leaderboard = await _leaderBoardService.GetGuildTopLeaderboardAsync(guildId.ToString());
 
         var embedBuilder = new EmbedBuilder()
-            .WithTitle("Leaderboard")
-            .WithDescription("Top 10 leaderboard")
+            .WithTitle("Top 10 Leaderboard")
             .WithColor(Color.Blue)
-            .WithCurrentTimestamp()
             .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
         if (leaderboard is not null && leaderboard.Count() > 0)
         {
-            foreach (var entry in leaderboard)
+            var desc = new System.Text.StringBuilder();
+
+            var index = 0;
+            foreach(var entry in leaderboard)
             {
-                string userName = "Unknown";
-                var sUser = _discordClient.GetUser(entry.UserId);
+                index++;
 
-                if (sUser is not null)
-                {
-                    userName = sUser.Username;
-                }
-                else
-                {
-                    // Fetch user from REST API
-                    var user = await _discordClient.Rest.GetUserAsync((ulong)Int64.Parse(entry.UserId));
-                    if (user is not null)
-                    {
-                        userName = user.Username;
-                    }
-                }
-
-                embedBuilder.AddField(userName, entry.Score);
+                desc.AppendLine($"{index}. **<@{entry.UserId}>** - {entry.Score} Eggs");
             }
+            
+            embedBuilder.WithDescription(desc.ToString());
         }
         else
         {
             embedBuilder.AddField("No entries", "No entries found");
         }
 
-        await command.RespondAsync(embed: embedBuilder.Build());
+        await command.FollowupAsync(embed: embedBuilder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.None));
     }
 
     public async Task HandleProfileCommandAsync(SocketSlashCommand command)
@@ -78,6 +68,8 @@ public class ScoreCommandService : IScoreCommandService
             return;
         }
 
+        await command.DeferAsync();
+
         var guildId = command.GuildId.Value;
         var userId = command.User.Id;
 
@@ -85,9 +77,8 @@ public class ScoreCommandService : IScoreCommandService
 
         var embedBuilder = new EmbedBuilder()
             .WithTitle("Profile")
-            .WithDescription("Your profile")
-            .WithColor(Color.Blue)
-            .WithCurrentTimestamp()
+            .WithAuthor(command.User.Username, command.User.GetAvatarUrl())
+            .WithColor(Color.DarkPurple)
             .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
         if (leaderboard is not null)
@@ -99,6 +90,6 @@ public class ScoreCommandService : IScoreCommandService
             embedBuilder.AddField("Score", 0);
         }
 
-        await command.RespondAsync(embed: embedBuilder.Build());
+        await command.FollowupAsync(embed: embedBuilder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.None));
     }
 }

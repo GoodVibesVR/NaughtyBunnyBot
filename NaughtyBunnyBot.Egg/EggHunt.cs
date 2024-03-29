@@ -147,7 +147,6 @@ namespace NaughtyBunnyBot.Egg
                 .WithDescription(egg.Description)
                 .WithImageUrl(egg.ImageUrl)
                 .WithColor(Color.Purple)
-                .WithCurrentTimestamp()
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
             var componentBuilder = new ComponentBuilder()
@@ -163,7 +162,6 @@ namespace NaughtyBunnyBot.Egg
                 .WithDescription(dud.Description)
                 .WithImageUrl(dud.ImageUrl)
                 .WithColor(Color.Purple)
-                .WithCurrentTimestamp()
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
             return await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder);
