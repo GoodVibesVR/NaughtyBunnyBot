@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-NaughtyBunnyBot.Service-F58A946C-35E6-4B14-8146-A92F4C0EE382</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="3.13.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NaughtyBunnyBot.Common\NaughtyBunnyBot.Common.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Database\NaughtyBunnyBot.Database.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Discord.Sender\NaughtyBunnyBot.Discord.Sender.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Discord\NaughtyBunnyBot.Discord.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Egg\NaughtyBunnyBot.Egg.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Lovense\NaughtyBunnyBot.Lovense.csproj" />
+  </ItemGroup>
+</Project>
