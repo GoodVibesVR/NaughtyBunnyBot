@@ -1,6 +1,7 @@
 ﻿using NaughtyBunnyBot.Lovense.Settings;
 using Discord.WebSocket;
 using Discord;
+using NaughtyBunnyBot.Cache.Services.Abstractions;
 using NaughtyBunnyBot.Database.Repositories;
 using NaughtyBunnyBot.Database.Repositories.Abstractions;
 using NaughtyBunnyBot.Database.Services;
@@ -61,6 +62,7 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<IButtonInteractionService, ButtonInteractionService>();
 
             services.AddSingleton<ILovenseService, LovenseService>();
+            services.AddSingleton<IMemoryCacheService, IMemoryCacheService>();
             services.AddSingleton<IEggService, EggService>();
             services.AddSingleton<ILeaderboardService, LeaderboardService>();
             services.AddSingleton<IApprovedChannelsService, ApprovedChannelsService>();
