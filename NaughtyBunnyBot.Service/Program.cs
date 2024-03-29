@@ -13,18 +13,6 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         var configuration = hostContext.Configuration;
         services.RegisterDependencies(configuration);
-
-        if (OperatingSystem.IsWindows())
-        {
-            services.Configure<EventLogSettings>(config =>
-            {
-                if (OperatingSystem.IsWindows())
-                {
-                    config.LogName = "NaughtyBunnyBot";
-                    config.SourceName = "NaughtyBunnyBot Source";
-                }
-            });
-        }
     })
     .UseWindowsService()
     .Build();

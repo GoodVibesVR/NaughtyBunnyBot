@@ -179,8 +179,6 @@ Or Connect via the Code:
                         Seconds = 12,
                     }
                 );
-
-                return;
             }
 
             _memoryCacheService.Set(cacheKey, true);
