@@ -26,7 +26,7 @@ namespace NaughtyBunnyBot.Discord.Services
 
         public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient,
             ILovenseService lovenseService, IEggService eggService, IEggHuntService eggHuntService, 
-            ILeaderboardService leaderboardService, IMemoryCacheService memoryCacheService, IOptions<EggConfig> config
+            ILeaderboardService leaderboardService, IMemoryCacheService memoryCacheService, IOptions<EggHuntConfig> config
         )
         {
             _logger = logger;

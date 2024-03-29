@@ -51,6 +51,7 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.Configure<LovenseConfig>(lovenseSection);
             services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
             services.Configure<EggConfig>(configuration.GetSection("Egg"));
+            services.Configure<EggHuntConfig>(configuration.GetSection("EggHunt"));
             var discordConfig = new DiscordSocketConfig()
             {
                 GatewayIntents = GatewayIntents.None

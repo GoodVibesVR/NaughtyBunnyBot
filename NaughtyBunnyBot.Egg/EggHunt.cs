@@ -1,10 +1,12 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NaughtyBunnyBot.Database.Services.Abstractions;
 using NaughtyBunnyBot.Discord.Sender.Abstractions;
 using NaughtyBunnyBot.Egg.Abstractions;
 using NaughtyBunnyBot.Egg.Dtos;
 using NaughtyBunnyBot.Egg.Services.Abstractions;
+using NaughtyBunnyBot.Egg.Settings;
 
 namespace NaughtyBunnyBot.Egg
 {
@@ -17,10 +19,11 @@ namespace NaughtyBunnyBot.Egg
         private readonly IDiscordMessageSender _messageSender;
 
         private readonly Random _random;
+        private readonly EggHuntConfig _config;
 
         public EggHunt(ILogger<EggHunt> logger, IEggHuntService eggHuntService, 
             IEggService eggService, IApprovedChannelsService channelService,
-            IDiscordMessageSender messageSender)
+            IDiscordMessageSender messageSender, IOptions<EggHuntConfig> config)
         {
             _logger = logger;
             _eggHuntService = eggHuntService;
@@ -29,6 +32,7 @@ namespace NaughtyBunnyBot.Egg
             _messageSender = messageSender;
 
             _random = new Random();
+            _config = config.Value;
         }
 
         public async Task StartEggHuntForGuildAsync(string guildId)
@@ -39,7 +43,7 @@ namespace NaughtyBunnyBot.Egg
             _eggHuntService.EnableEggHuntForGuild(guildId);
             _logger.LogDebug($"Egg hunt started for guild with ID {guildId}");
 
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(20));
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(_config.TimerSeconds));
             while (await timer.WaitForNextTickAsync())
             {
                 hunt = _eggHuntService.GetEggHuntForGuild(guildId);
@@ -55,7 +59,7 @@ namespace NaughtyBunnyBot.Egg
                     continue;
                 }
 
-                if (_random.Next(5) > 1)
+                if (_random.Next(_config.Probability) > _config.Chance)
                 {
                     _logger.LogDebug("Probability to drop egg not hit...");
                     continue;

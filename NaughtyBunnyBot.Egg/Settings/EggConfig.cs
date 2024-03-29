@@ -6,7 +6,5 @@ namespace NaughtyBunnyBot.Egg.Settings
     {
         public List<EggDto> Eggs { get; set; } = new List<EggDto>();
         public List<DudDto> Duds { get; set; } = new List<DudDto>();
-
-        public int MaxClaimed { get; set; }
     }
 }
