@@ -30,9 +30,7 @@ public class ChannelCommandService : IChannelCommandService
         }
 
         var guildId = command.GuildId.Value;
-#pragma warning disable CS8629 // Nullable value type may be null.
-        var channelId = command.ChannelId.Value;
-#pragma warning restore CS8629 // Nullable value type may be null.
+        var channelId = command.ChannelId!.Value;
 
         var approvedChannel = await _approvedChannelsService.GetApprovedChannelAsync(guildId.ToString(), channelId.ToString());
         if (approvedChannel is not null)
@@ -42,7 +40,6 @@ public class ChannelCommandService : IChannelCommandService
         }
 
         await _approvedChannelsService.AddApprovedChannelAsync(guildId.ToString(), channelId.ToString());
-
         await command.RespondAsync($"Channel <#{channelId}> ({channelId}) has been added to the approved channels list.");
     }
 
@@ -55,9 +52,7 @@ public class ChannelCommandService : IChannelCommandService
         }
 
         var guildId = command.GuildId.Value;
-#pragma warning disable CS8629 // Nullable value type may be null.
-        var channelId = command.ChannelId.Value;
-#pragma warning restore CS8629 // Nullable value type may be null.
+        var channelId = command.ChannelId!.Value;
 
         var approvedChannel = await _approvedChannelsService.GetApprovedChannelAsync(guildId.ToString(), channelId.ToString());
         if (approvedChannel == null)

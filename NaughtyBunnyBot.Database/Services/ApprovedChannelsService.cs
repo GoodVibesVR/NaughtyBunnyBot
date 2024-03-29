@@ -16,9 +16,7 @@ public class ApprovedChannelsService : IApprovedChannelsService
     public async Task<ApprovedChannelDto?> GetApprovedChannelAsync(string guildId, string channelId)
     {
         var approvedChannel = await _approvedChannelsRepository.GetApprovedChannelAsync(guildId, channelId);
-        if (approvedChannel != null) return approvedChannel;
-
-        return await _approvedChannelsRepository.AddApprovedChannelAsync(guildId, channelId);
+        return approvedChannel ?? null;
     }
 
     public async Task<IEnumerable<ApprovedChannelDto>> GetApprovedChannelByGuildAsync(string guildId)

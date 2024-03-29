@@ -8,10 +8,12 @@ namespace NaughtyBunnyBot.Egg.Services
     public class EggService : IEggService
     {
         private readonly List<EggDto> _eggs;
+        private readonly List<DudDto> _duds;
 
         public EggService(IOptions<EggConfig> config)
         {
             _eggs = config.Value.Eggs;
+            _duds = config.Value.Duds;
         }
 
         public EggDto GetRandomEgg()
@@ -20,6 +22,14 @@ namespace NaughtyBunnyBot.Egg.Services
             var next = random.Next(_eggs.Count);
 
             return _eggs[next];
+        }
+
+        public DudDto GetRandomDud()
+        {
+            var random = new Random();
+            var next = random.Next(_duds.Count);
+
+            return _duds[next];
         }
 
         public EggDto? GetEggByName(string name)

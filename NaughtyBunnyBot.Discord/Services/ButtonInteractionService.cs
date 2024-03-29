@@ -1,11 +1,10 @@
-using NaughtyBunnyBot.Common.Extensions;
 using NaughtyBunnyBot.Discord.Services.Abstractions;
 using NaughtyBunnyBot.Lovense.Services.Abstractions;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using NaughtyBunnyBot.Egg.Services.Abstractions;
-using NaughtyBunnyBot.Database.Services;
+using NaughtyBunnyBot.Database.Services.Abstractions;
 
 namespace NaughtyBunnyBot.Discord.Services
 {
@@ -15,10 +14,10 @@ namespace NaughtyBunnyBot.Discord.Services
         private readonly DiscordSocketClient _discordClient;
         private readonly ILovenseService _lovenseService;
         private readonly IEggService _eggService;
-        private readonly LeaderboardService _leaderboardService;
+        private readonly ILeaderboardService _leaderboardService;
 
         public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient,
-            ILovenseService lovenseService, IEggService eggService, LeaderboardService leaderboardService)
+            ILovenseService lovenseService, IEggService eggService, ILeaderboardService leaderboardService)
         {
             _logger = logger;
             _discordClient = discordClient;
@@ -95,7 +94,7 @@ Or Connect via the Code:
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             _leaderboardService.UpLeaderboardEntryScore(
-                component.GuildId.Value.ToString(), component.User.Id.ToString()
+                component.GuildId!.Value.ToString(), component.User.Id.ToString()
             );
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
