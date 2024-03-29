@@ -63,11 +63,9 @@ namespace NaughtyBunnyBot.Egg
 
                 var channels = await _channelsService.GetApprovedChannelByGuildAsync(guildId);
                 var channelsArr = channels.ToArray();
-                var eggChannel = _random.Next(channelsArr.Count());
+                var eggChannel = _random.Next(channelsArr.Length);
 
-                var maxChannels = channelsArr.Count() > 5 ? 5 : channelsArr.Count();
-
-                for (var i = 0; i < maxChannels; i++)
+                for (var i = 0; i < channelsArr.Length; i++)
                 {
                     if (i == eggChannel)
                     {

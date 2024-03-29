@@ -29,7 +29,7 @@ namespace NaughtyBunnyBot.Database.Services
                                    await _leaderboardRepository.CreateLeaderboardEntryAsync(guildId, userId);
 
             return await _leaderboardRepository.UpdateLeaderboardEntryAsync(leaderboardEntry.Id,
-                leaderboardEntry.Score++);
+                leaderboardEntry.Score + 1);
         }
     }
 }
