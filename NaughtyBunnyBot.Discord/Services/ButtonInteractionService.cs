@@ -5,6 +5,10 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using NaughtyBunnyBot.Egg.Services.Abstractions;
 using NaughtyBunnyBot.Database.Services.Abstractions;
+using System.Runtime.Caching.Hosting;
+using NaughtyBunnyBot.Cache.Services.Abstractions;
+using NaughtyBunnyBot.Egg.Settings;
+using Microsoft.Extensions.Options;
 
 namespace NaughtyBunnyBot.Discord.Services
 {
@@ -16,9 +20,14 @@ namespace NaughtyBunnyBot.Discord.Services
         private readonly IEggService _eggService;
         private readonly IEggHuntService _eggHuntService;
         private readonly ILeaderboardService _leaderboardService;
+        private readonly IMemoryCacheService _memoryCacheService;
+        private readonly int configMaxClaimed;
+        
 
         public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient,
-            ILovenseService lovenseService, IEggService eggService, IEggHuntService eggHuntService, ILeaderboardService leaderboardService)
+            ILovenseService lovenseService, IEggService eggService, IEggHuntService eggHuntService, 
+            ILeaderboardService leaderboardService, IMemoryCacheService memoryCacheService, IOptions<EggConfig> config
+        )
         {
             _logger = logger;
             _discordClient = discordClient;
@@ -26,6 +35,9 @@ namespace NaughtyBunnyBot.Discord.Services
             _eggService = eggService;
             _eggHuntService = eggHuntService;
             _leaderboardService = leaderboardService;
+            _memoryCacheService = memoryCacheService;
+            
+            configMaxClaimed = config.Value.MaxClaimed;
         }
 
         public async Task JoinButtonHandler(SocketMessageComponent component)
@@ -67,10 +79,9 @@ Or Connect via the Code:
         {
             await component.DeferAsync();
 
-            var userId = component.User.Id;
-            var userName = component.User.Username;
+            _eggService.RemoveParticipantFromEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
 
-            await component.FollowupAsync("Successfully left.", ephemeral: true);
+            await component.FollowupAsync("Successfully left, we hope you join us again later.", ephemeral: true);
         }
 
         public async Task InvalidButtonHandler(SocketMessageComponent component)
@@ -106,6 +117,52 @@ Or Connect via the Code:
         {
             await component.DeferAsync(ephemeral: true);
 
+            // Check if the user is not participating in the event
+            var isParticipating = _eggService.IsParticipantInEggHunt(component.GuildId.ToString(), component.User.Id.ToString());
+            if (!isParticipating)
+            {
+                await component.FollowupAsync("You are not participating in the Easter Egg Hunt.", ephemeral: true);
+                return;
+            }
+
+
+            // Check if the egg is fully claimed
+            var claimedCount = _memoryCacheService.Get<int>($"{component.Message.Id}-claimed");
+            if (claimedCount >= configMaxClaimed)
+            {
+                await component.FollowupAsync("All Easter Eggs have been claimed.", ephemeral: true);
+
+                // Edit the original message to remove the button
+                var originalMessage = component.Message as IUserMessage;
+                var componentBuilder = new ComponentBuilder()
+                    .WithButton("All Easter Eggs have been claimed", "______", ButtonStyle.Danger, disabled: true);
+
+                await originalMessage.ModifyAsync(x =>
+                {
+                    x.Components = componentBuilder.Build();
+                });
+                return;
+            }
+
+            _memoryCacheService.Set($"{component.Message.Id}-claimed", claimedCount + 1);
+
+
+
+            // Check if the user has already redeemed this egg
+            var cacheKey = $"{component.GuildId}-{component.User.Id}-{component.Message.Id}";
+            var cacheValue = _memoryCacheService.Get<bool>(cacheKey);
+
+            if (cacheValue)
+            {
+                await component.FollowupAsync("You have already redeemed this egg.", ephemeral: true);
+                return;
+            }
+
+            _memoryCacheService.Set(cacheKey, true);
+
+            // ---------------------------------------
+            // Send the easter egg message
+
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("Easter Egg")
                 .WithDescription("You found the Easter Egg! 🥚")
@@ -118,11 +175,11 @@ Or Connect via the Code:
             // ---------------------------------------
             // Award their points
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             _leaderboardService.UpLeaderboardEntryScore(
                 component.GuildId!.Value.ToString(), component.User.Id.ToString()
             );
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             // ---------------------------------------
             // Give the person the pattern
