@@ -5,7 +5,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using NaughtyBunnyBot.Egg.Services.Abstractions;
 using NaughtyBunnyBot.Database.Services.Abstractions;
-using System.Runtime.Caching.Hosting;
 using NaughtyBunnyBot.Cache.Services.Abstractions;
 using NaughtyBunnyBot.Egg.Settings;
 using Microsoft.Extensions.Options;
@@ -125,9 +124,8 @@ Or Connect via the Code:
                 return;
             }
 
-
             // Check if the message is older than 10 minutes
-            // This is a safety check to prevent people from claiming eggs after the Cache possibily has expired to know if the egg has been fully claimed.
+            // This is a safety check to prevent people from claiming eggs after the Cache possibly has expired to know if the egg has been fully claimed.
             if (DateTimeOffset.UtcNow - component.Message.CreatedAt > TimeSpan.FromMinutes(10))
             {
                 await component.FollowupAsync("This Easter Egg has expired.", ephemeral: true);
@@ -136,21 +134,6 @@ Or Connect via the Code:
                 return;
             }
 
-
-            // Check if the egg is fully claimed
-            var claimedCount = _memoryCacheService.Get<int>($"{component.Message.Id}-claimed");
-            if (claimedCount >= configMaxClaimed)
-            {
-                await component.FollowupAsync("All Easter Eggs have been claimed.", ephemeral: true);
-
-                await DisableFindEggButton(component);
-                return;
-            }
-
-            _memoryCacheService.Set($"{component.Message.Id}-claimed", claimedCount + 1);
-
-
-
             // Check if the user has already redeemed this egg
             var cacheKey = $"{component.GuildId}-{component.User.Id}-{component.Message.Id}";
             var cacheValue = _memoryCacheService.Get<bool>(cacheKey);
@@ -158,6 +141,47 @@ Or Connect via the Code:
             if (cacheValue)
             {
                 await component.FollowupAsync("You have already redeemed this egg.", ephemeral: true);
+                return;
+            }
+
+            // Check if the egg is fully claimed
+            var claimedCount = _memoryCacheService.Get<int>($"{component.Message.Id}-claimed");
+            claimedCount++;
+            _memoryCacheService.Set($"{component.Message.Id}-claimed", claimedCount);
+
+            var participantCount = _memoryCacheService.Get<int>($"{component.Message.Id}-participant-count");
+            if (claimedCount > participantCount || claimedCount > configMaxClaimed)
+            {
+                await component.FollowupAsync("All Easter Eggs have been claimed.", ephemeral: true);
+                _memoryCacheService.Set($"{component.GuildId}-hunt-ongoing", false);
+
+                await DisableFindEggButton(component);
+            }
+            
+            if (claimedCount == participantCount || claimedCount == configMaxClaimed)
+            {
+                _memoryCacheService.Set($"{component.GuildId}-hunt-ongoing", false);
+                await DisableFindEggButton(component);
+
+                var eggName = component.Data.CustomId.Replace("find-", string.Empty);
+                var currentEgg = _eggService.GetEggByName(eggName);
+                if (currentEgg is null)
+                {
+                    await component.FollowupAsync("Easter Egg not found? Something bad has happened...", ephemeral: true);
+                    return;
+                }
+
+                var hunt = _eggHuntService.GetEggHuntForGuild(component.GuildId.ToString()!);
+                await _lovenseService.CommandPatternAsync(
+                    hunt!.Participants,
+                    new Lovense.Dtos.WebCommandPatternDto()
+                    {
+                        Rule = "V:1;F:v;S:250#",
+                        Strength = currentEgg.Pattern,
+                        Seconds = 12,
+                    }
+                );
+
                 return;
             }
 
@@ -183,27 +207,6 @@ Or Connect via the Code:
                 component.GuildId!.Value.ToString(), component.User.Id.ToString()
             );
             #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-            // ---------------------------------------
-            // Give the person the pattern
-
-            var eggName = component.Data.CustomId.Replace("find-", string.Empty);
-            var currentEgg = _eggService.GetEggByName(eggName);
-            if (currentEgg is null)
-            {
-                await component.FollowupAsync("Easter Egg not found? Something bad has happened...", ephemeral: true);
-                return;
-            }
-
-            await _lovenseService.CommandPatternAsync(
-               new List<string>(){ component.User.Id.ToString() },
-                new Lovense.Dtos.WebCommandPatternDto()
-                {
-                    Rule = "V:1;F:v;S:250#",
-                    Strength = currentEgg.Pattern,
-                    Seconds = 12,
-                }
-            );
         }
 
         private async Task DisableFindEggButton(SocketMessageComponent component)

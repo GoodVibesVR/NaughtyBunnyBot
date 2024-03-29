@@ -1,12 +1,15 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NaughtyBunnyBot.Cache.Services.Abstractions;
 using NaughtyBunnyBot.Database.Services.Abstractions;
 using NaughtyBunnyBot.Discord.Sender.Abstractions;
 using NaughtyBunnyBot.Egg.Abstractions;
 using NaughtyBunnyBot.Egg.Dtos;
 using NaughtyBunnyBot.Egg.Services.Abstractions;
 using NaughtyBunnyBot.Egg.Settings;
+using NaughtyBunnyBot.Lovense.Dtos;
+using NaughtyBunnyBot.Lovense.Services.Abstractions;
 
 namespace NaughtyBunnyBot.Egg
 {
@@ -17,19 +20,24 @@ namespace NaughtyBunnyBot.Egg
         private readonly IEggService _eggService;
         private readonly IApprovedChannelsService _channelsService;
         private readonly IDiscordMessageSender _messageSender;
+        private readonly IMemoryCacheService _cacheService;
+        private readonly ILovenseService _lovenseService;
 
         private readonly Random _random;
         private readonly EggHuntConfig _config;
 
         public EggHunt(ILogger<EggHunt> logger, IEggHuntService eggHuntService, 
             IEggService eggService, IApprovedChannelsService channelService,
-            IDiscordMessageSender messageSender, IOptions<EggHuntConfig> config)
+            IDiscordMessageSender messageSender, IMemoryCacheService cacheService, 
+            ILovenseService lovenseService, IOptions<EggHuntConfig> config)
         {
             _logger = logger;
             _eggHuntService = eggHuntService;
             _eggService = eggService;
             _channelsService = channelService;
             _messageSender = messageSender;
+            _cacheService = cacheService;
+            _lovenseService = lovenseService;
 
             _random = new Random();
             _config = config.Value;
@@ -40,10 +48,13 @@ namespace NaughtyBunnyBot.Egg
             var hunt = _eggHuntService.GetEggHuntForGuild(guildId);
             if (hunt is { Enabled: true }) return;
 
+            _cacheService.Set($"{guildId}-hunt-ongoing", false);
+
             _eggHuntService.EnableEggHuntForGuild(guildId);
             _logger.LogDebug($"Egg hunt started for guild with ID {guildId}");
 
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(_config.TimerSeconds));
+            var messageId = string.Empty;
             while (await timer.WaitForNextTickAsync())
             {
                 hunt = _eggHuntService.GetEggHuntForGuild(guildId);
@@ -51,6 +62,13 @@ namespace NaughtyBunnyBot.Egg
                 {
                     _logger.LogDebug($"Egg hunt is no longer ongoing for {guildId}. Stopping game loop...");
                     return;
+                }
+
+                var ongoing = _cacheService.Get<bool>($"{guildId}-hunt-ongoing");
+                if (ongoing)
+                {
+                    _logger.LogDebug("Hunt is still ongoing. No need to drop a new egg now...");
+                    continue;
                 }
 
                 if (hunt.Participants.Count == 0)
@@ -71,14 +89,21 @@ namespace NaughtyBunnyBot.Egg
 
                 for (var i = 0; i < channelsArr.Length; i++)
                 {
+                    IUserMessage? message;
                     if (i == eggChannel)
                     {
-                        await BuildEggEmbed(_eggService.GetRandomEgg(), channelsArr[i].ChannelId);
-                        continue;
+                        message = await BuildEggEmbedAsync(_eggService.GetRandomEgg(), channelsArr[i].ChannelId);
+                    }
+                    else
+                    {
+                        message = await BuildDudEmbedAsync(_eggService.GetRandomDud(), channelsArr[i].ChannelId);
                     }
 
-                    await BuildDudEmbed(_eggService.GetRandomDud(), channelsArr[i].ChannelId);
+                    _cacheService.Set($"{message!.Id}-participant-count", hunt.Participants.Count);
+                    _cacheService.Set($"{guildId}-hunt-ongoing", true);
                 }
+
+                await StartVibeLoop(guildId, hunt.Participants);
             }
         }
 
@@ -90,7 +115,32 @@ namespace NaughtyBunnyBot.Egg
             return Task.CompletedTask;
         }
 
-        private async Task BuildEggEmbed(EggDto egg, string channelId)
+        private async Task StartVibeLoop(string guildId, List<string> participants)
+        {
+            var strength = 1;
+            for (var i = 0; i < _config.VibeLoopSeconds; i++)
+            {
+                var ongoing = _cacheService.Get<bool>($"{guildId}-hunt-ongoing");
+                if (!ongoing) return;
+
+                if (i % 3 == 0)
+                {
+                    strength = strength + 1 > 20 ? 20 : strength + 1;
+                }
+
+                await _lovenseService.CommandAsync(participants, new WebCommandDto()
+                {
+                    Strength = strength,
+                    Seconds = 4
+                });
+
+                await Task.Delay(1000);
+            }
+
+            _cacheService.Set($"{guildId}-hunt-ongoing", false);
+        }
+
+        private async Task<IUserMessage?> BuildEggEmbedAsync(EggDto egg, string channelId)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle(egg.Name)
@@ -103,10 +153,10 @@ namespace NaughtyBunnyBot.Egg
             var componentBuilder = new ComponentBuilder()
                 .WithButton("Collect Egg", $"find-{egg.Name}", ButtonStyle.Success);
 
-            await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder, componentBuilder);
+            return await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder, componentBuilder);
         }
 
-        private async Task BuildDudEmbed(DudDto dud, string channelId)
+        private async Task<IUserMessage?> BuildDudEmbedAsync(DudDto dud, string channelId)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle(dud.Name)
@@ -116,7 +166,7 @@ namespace NaughtyBunnyBot.Egg
                 .WithCurrentTimestamp()
                 .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
-            await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder);
+            return await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder);
         }
     }
 }

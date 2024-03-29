@@ -16,31 +16,31 @@ namespace NaughtyBunnyBot.Discord.Sender
             _discordClient = discordClient;
         }
 
-        public async Task SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder, 
+        public async Task<IUserMessage?> SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder, 
             ComponentBuilder componentBuilder)
         {
             var channel = await _discordClient.GetChannelAsync(Convert.ToUInt64(channelId)) as IMessageChannel;
             if (channel == null)
             {
                 _logger.LogError($"Cannot find channel with ID {channelId}. Cannot send message.");
-                return;
+                return null;
             }
 
-            await channel.SendMessageAsync(
+            return await channel.SendMessageAsync(
                 embed: embedBuilder.Build(),
                 components: componentBuilder.Build());
         }
 
-        public async Task SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder)
+        public async Task<IUserMessage?> SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder)
         {
             var channel = await _discordClient.GetChannelAsync(Convert.ToUInt64(channelId)) as IMessageChannel;
             if (channel == null)
             {
                 _logger.LogError($"Cannot find channel with ID {channelId}. Cannot send message.");
-                return;
+                return null;
             }
 
-            await channel.SendMessageAsync(embed: embedBuilder.Build());
+            return await channel.SendMessageAsync(embed: embedBuilder.Build());
         }
     }
 }

@@ -14,6 +14,7 @@
     <ProjectReference Include="..\NaughtyBunnyBot.Cache\NaughtyBunnyBot.Cache.csproj" />
     <ProjectReference Include="..\NaughtyBunnyBot.Database\NaughtyBunnyBot.Database.csproj" />
     <ProjectReference Include="..\NaughtyBunnyBot.Discord.Sender\NaughtyBunnyBot.Discord.Sender.csproj" />
+    <ProjectReference Include="..\NaughtyBunnyBot.Lovense\NaughtyBunnyBot.Lovense.csproj" />
   </ItemGroup>
 
 </Project>

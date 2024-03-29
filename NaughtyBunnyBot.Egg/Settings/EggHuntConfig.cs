@@ -6,4 +6,5 @@ public class EggHuntConfig
     public int Chance { get; set; }
     public int Probability { get; set; }
     public int MaxClaimed { get; set; }
+    public int VibeLoopSeconds { get; set; }
 }

@@ -4,7 +4,7 @@ namespace NaughtyBunnyBot.Discord.Sender.Abstractions
 {
     public interface IDiscordMessageSender
     {
-        Task SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder, ComponentBuilder componentBuilder);
-        Task SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder);
+        Task<IUserMessage?> SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder, ComponentBuilder componentBuilder);
+        Task<IUserMessage?> SendMessageToChannelAsync(string channelId, EmbedBuilder embedBuilder);
     }
 }
