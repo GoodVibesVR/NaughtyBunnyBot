@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NaughtyBunnyBot.Lovense\NaughtyBunnyBot.Lovense.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -21,6 +21,7 @@ using NaughtyBunnyBot.Egg.Settings;
 using NaughtyBunnyBot.Lovense;
 using NaughtyBunnyBot.Lovense.Abstractions;
 using NaughtyBunnyBot.Discord.Sender.Abstractions;
+using NaughtyBunnyBot.Discord.Sender.Settings;
 using NaughtyBunnyBot.Egg;
 using NaughtyBunnyBot.Egg.Abstractions;
 
@@ -52,6 +53,7 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
             services.Configure<EggConfig>(configuration.GetSection("Egg"));
             services.Configure<EggHuntConfig>(configuration.GetSection("EggHunt"));
+            services.Configure<DiscordWebHookConfig>(configuration.GetSection("DiscordWebHook"));
             var discordConfig = new DiscordSocketConfig()
             {
                 GatewayIntents = GatewayIntents.None
@@ -69,6 +71,7 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<IChannelCommandService, ChannelCommandService>();
             services.AddSingleton<IButtonInteractionService, ButtonInteractionService>();
             services.AddSingleton<IDiscordMessageSender, DiscordMessageSender>();
+            services.AddSingleton<IWebHookMessageSender, WebHookMessageSender>();
 
             services.AddSingleton<IEggHunt, EggHunt>();
             services.AddSingleton<ILovenseService, LovenseService>();

@@ -9,6 +9,7 @@ using NaughtyBunnyBot.Egg.Dtos;
 using NaughtyBunnyBot.Egg.Services.Abstractions;
 using NaughtyBunnyBot.Egg.Settings;
 using NaughtyBunnyBot.Lovense.Dtos;
+using NaughtyBunnyBot.Lovense.Exceptions;
 using NaughtyBunnyBot.Lovense.Services.Abstractions;
 
 namespace NaughtyBunnyBot.Egg
@@ -22,6 +23,7 @@ namespace NaughtyBunnyBot.Egg
         private readonly IDiscordMessageSender _messageSender;
         private readonly IMemoryCacheService _cacheService;
         private readonly ILovenseService _lovenseService;
+        private readonly IWebHookMessageSender _webHookMessageSender;
 
         private readonly Random _random;
         private readonly EggHuntConfig _config;
@@ -29,7 +31,8 @@ namespace NaughtyBunnyBot.Egg
         public EggHunt(ILogger<EggHunt> logger, IEggHuntService eggHuntService, 
             IEggService eggService, IApprovedChannelsService channelService,
             IDiscordMessageSender messageSender, IMemoryCacheService cacheService, 
-            ILovenseService lovenseService, IOptions<EggHuntConfig> config)
+            ILovenseService lovenseService, IWebHookMessageSender webHookMessageSender, 
+            IOptions<EggHuntConfig> config)
         {
             _logger = logger;
             _eggHuntService = eggHuntService;
@@ -38,6 +41,7 @@ namespace NaughtyBunnyBot.Egg
             _messageSender = messageSender;
             _cacheService = cacheService;
             _lovenseService = lovenseService;
+            _webHookMessageSender = webHookMessageSender;
 
             _random = new Random();
             _config = config.Value;
@@ -118,11 +122,7 @@ namespace NaughtyBunnyBot.Egg
         private async Task StartVibeLoop(string guildId, List<string> participants)
         {
             var strength = 1;
-            await _lovenseService.CommandAsync(participants, new WebCommandDto()
-            {
-                Strength = strength,
-                Seconds = 4
-            });
+            await CallLovense(participants, strength);
 
             for (var i = 0; i < _config.VibeLoopSeconds; i++)
             {
@@ -133,17 +133,35 @@ namespace NaughtyBunnyBot.Egg
                 {
                     strength = strength + 1 > 20 ? 20 : strength + 1;
 
-                    await _lovenseService.CommandAsync(participants, new WebCommandDto()
-                    {
-                        Strength = strength,
-                        Seconds = 4
-                    });
+                    await CallLovense(participants, strength);
                 }
                 
                 await Task.Delay(1000);
             }
 
             _cacheService.Set($"{guildId}-hunt-ongoing", false);
+        }
+
+        private async Task CallLovense(List<string> participants, int strength)
+        {
+            try
+            {
+                await _lovenseService.CommandAsync(participants, new WebCommandDto()
+                {
+                    Strength = strength,
+                    Seconds = 4
+                });
+            }
+            catch (GeneralLovenseException gle)
+            {
+                _logger.LogError($"Lovense error occurred while sending incremental timer strength. {gle.Message}");
+                await _webHookMessageSender.SendErrorAsync($"Lovense error occurred while sending incremental timer strength: {gle.Message}", gle.StatusCode);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"General exception occurred while sending incremental timer strength. {e.Message}");
+                await _webHookMessageSender.SendErrorAsync($"General exception occurred while sending incremental timer strength. {e.Message}");
+            }
         }
 
         private async Task<IUserMessage?> BuildEggEmbedAsync(EggDto egg, string channelId)

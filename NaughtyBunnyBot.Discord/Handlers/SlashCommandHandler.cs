@@ -12,17 +12,15 @@ public class SlashCommandHandler
 {
     private readonly ILogger<SlashCommandHandler> _logger;
     private readonly DiscordConfig _discordSettings;
-    private readonly ISlashCommandService _commandService;
     private readonly IEnableCommandService _enableCommandService;
     private readonly IScoreCommandService _scoreCommandService;
     private readonly IChannelCommandService _channelCommandService;
 
     public SlashCommandHandler(ILogger<SlashCommandHandler> logger, IOptions<DiscordConfig> discordSettings, 
-        ISlashCommandService commandService, IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService, IChannelCommandService channelCommandService)
+        IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService, IChannelCommandService channelCommandService)
     {
         _logger = logger;
         _discordSettings = discordSettings.Value;
-        _commandService = commandService;
 
         _enableCommandService = enableCommandService;
         _scoreCommandService = scoreCommandService;

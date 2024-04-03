@@ -8,6 +8,8 @@ using NaughtyBunnyBot.Database.Services.Abstractions;
 using NaughtyBunnyBot.Cache.Services.Abstractions;
 using NaughtyBunnyBot.Egg.Settings;
 using Microsoft.Extensions.Options;
+using NaughtyBunnyBot.Discord.Sender.Abstractions;
+using NaughtyBunnyBot.Lovense.Exceptions;
 
 namespace NaughtyBunnyBot.Discord.Services
 {
@@ -20,13 +22,14 @@ namespace NaughtyBunnyBot.Discord.Services
         private readonly IEggHuntService _eggHuntService;
         private readonly ILeaderboardService _leaderboardService;
         private readonly IMemoryCacheService _memoryCacheService;
-        private readonly int configMaxClaimed;
-        
+        private readonly IWebHookMessageSender _webHookMessageSender;
+        private readonly int _configMaxClaimed;
+
 
         public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient,
-            ILovenseService lovenseService, IEggService eggService, IEggHuntService eggHuntService, 
-            ILeaderboardService leaderboardService, IMemoryCacheService memoryCacheService, IOptions<EggHuntConfig> config
-        )
+            ILovenseService lovenseService, IEggService eggService, IEggHuntService eggHuntService,
+            ILeaderboardService leaderboardService, IMemoryCacheService memoryCacheService, IWebHookMessageSender webHookMessageSender,
+            IOptions<EggHuntConfig> config)
         {
             _logger = logger;
             _discordClient = discordClient;
@@ -35,42 +38,63 @@ namespace NaughtyBunnyBot.Discord.Services
             _eggHuntService = eggHuntService;
             _leaderboardService = leaderboardService;
             _memoryCacheService = memoryCacheService;
-            
-            configMaxClaimed = config.Value.MaxClaimed;
+            _webHookMessageSender = webHookMessageSender;
+
+            _configMaxClaimed = config.Value.MaxClaimed;
         }
 
         public async Task JoinButtonHandler(SocketMessageComponent component)
         {
             await component.DeferAsync(ephemeral: true);
-
-            //var guildId = component.GuildId.ToString() ?? "0";
             var uId = component.User.Id.ToString();
 
+            await _webHookMessageSender.SendErrorAsync("This is a test", 502);
+
             // uToken isn't being used as we aren't verifying it.
-            var qrCodeDetails = await _lovenseService.GenerateQrCodeAsync(uId, uId, uId);
-            if (qrCodeDetails == null)
+            try
             {
-                await component.FollowupAsync("Failed to generate QR code. Please try again later.", ephemeral: true);
-                return;
-            }
+                var qrCodeDetails = await _lovenseService.GenerateQrCodeAsync(uId, uId, uId);
+                if (qrCodeDetails == null)
+                {
+                    await component.FollowupAsync("Failed to generate QR code. Please try again later.",
+                        ephemeral: true);
+                    return;
+                }
 
-            var qrCode = qrCodeDetails.ImageUrl;
-            var qrCodeUniqueCode = qrCodeDetails.UniqueCode;
+                var qrCode = qrCodeDetails.ImageUrl;
+                var qrCodeUniqueCode = qrCodeDetails.UniqueCode;
 
-            var embedBuilder = new EmbedBuilder()
-                .WithTitle("Lovense QR Code")
-                .WithDescription(@$"
+                var embedBuilder = new EmbedBuilder()
+                    .WithTitle("Lovense QR Code")
+                    .WithDescription(@$"
 Scan the QR code to connect your toy.
 
 Or Connect via the Code:
 **Unique Code:** {qrCodeUniqueCode}"
-                )
-                .WithImageUrl(qrCode)
-                .WithColor(215, 42, 119)    // Lovense Pink
-                .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
+                    )
+                    .WithImageUrl(qrCode)
+                    .WithColor(215, 42, 119) // Lovense Pink
+                    .WithFooter("NaughtyBunnyBot - Made by @miwca and @kitty_cass");
 
-            _eggHuntService.AddParticipantToEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
-            await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
+                _eggHuntService.AddParticipantToEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
+                await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
+            }
+            catch (GeneralLovenseException gle)
+            {
+                _logger.LogError($"Lovense error occurred while generating QR code. {gle.Message}");
+                await _webHookMessageSender.SendErrorAsync($"Lovense error occurred while generating QR code. {gle.Message}", gle.StatusCode);
+
+                await component.FollowupAsync("Failed to generate QR code. Please try again later.",
+                    ephemeral: true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"General exception occurred while generating QR code. {e.Message}");
+                await _webHookMessageSender.SendErrorAsync($"General exception occurred while generating QR code. {e.Message}");
+
+                await component.FollowupAsync("Failed to generate QR code. Please try again later.",
+                    ephemeral: true);
+            }
         }
 
         public async Task LeaveButtonHandler(SocketMessageComponent component)
@@ -148,15 +172,15 @@ Or Connect via the Code:
             _memoryCacheService.Set($"{component.Message.Id}-claimed", claimedCount);
 
             var participantCount = _memoryCacheService.Get<int>($"{component.Message.Id}-participant-count");
-            if (claimedCount > participantCount || claimedCount > configMaxClaimed)
+            if (claimedCount > participantCount || claimedCount > _configMaxClaimed)
             {
                 await component.FollowupAsync("All Easter Eggs have been claimed.", ephemeral: true);
                 _memoryCacheService.Set($"{component.GuildId}-hunt-ongoing", false);
 
                 await DisableFindEggButton(component);
             }
-            
-            if (claimedCount == participantCount || claimedCount == configMaxClaimed)
+
+            if (claimedCount == participantCount || claimedCount == _configMaxClaimed)
             {
                 _memoryCacheService.Set($"{component.GuildId}-hunt-ongoing", false);
                 await DisableFindEggButton(component);
@@ -170,15 +194,29 @@ Or Connect via the Code:
                 }
 
                 var hunt = _eggHuntService.GetEggHuntForGuild(component.GuildId.ToString()!);
-                await _lovenseService.CommandPatternAsync(
-                    hunt!.Participants,
-                    new Lovense.Dtos.WebCommandPatternDto()
-                    {
-                        Rule = "V:1;F:v;S:250#",
-                        Strength = currentEgg.Pattern,
-                        Seconds = 12,
-                    }
-                );
+
+                try
+                {
+                    await _lovenseService.CommandPatternAsync(
+                        hunt!.Participants,
+                        new Lovense.Dtos.WebCommandPatternDto()
+                        {
+                            Rule = "V:1;F:v;S:250#",
+                            Strength = currentEgg.Pattern,
+                            Seconds = 12,
+                        }
+                    );
+                }
+                catch (GeneralLovenseException gle)
+                {
+                    _logger.LogError($"Lovense error occurred while sending egg pattern. {gle.Message}");
+                    await _webHookMessageSender.SendErrorAsync($"Lovense error occurred while sending egg pattern. {gle.Message}", gle.StatusCode);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"General exception occurred while sending egg pattern. {e.Message}");
+                    await _webHookMessageSender.SendErrorAsync($"General exception occurred while sending egg pattern. {e.Message}");
+                }
             }
 
             _memoryCacheService.Set(cacheKey, true);
@@ -197,11 +235,11 @@ Or Connect via the Code:
             // ---------------------------------------
             // Award their points
 
-            #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             _leaderboardService.UpLeaderboardEntryScore(
                 component.GuildId!.Value.ToString(), component.User.Id.ToString()
             );
-            #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
         private async Task DisableFindEggButton(SocketMessageComponent component)
@@ -211,7 +249,7 @@ Or Connect via the Code:
                 .Build();
 
             // Get the channel
-            var channel = await _discordClient.GetChannelAsync(component.ChannelId??0);
+            var channel = await _discordClient.GetChannelAsync(component.ChannelId ?? 0);
 
             // Get the message
             if (channel is ITextChannel textChannel)
@@ -219,7 +257,8 @@ Or Connect via the Code:
                 var message = await textChannel.GetMessageAsync(component.Message.Id);
                 if (message is IUserMessage userMessage)
                 {
-                    await userMessage.ModifyAsync(m => {
+                    await userMessage.ModifyAsync(m =>
+                    {
                         m.Components = componentBuilder;
                     });
                 }
