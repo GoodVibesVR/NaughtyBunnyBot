@@ -3,6 +3,7 @@ using NaughtyBunnyBot.Lovense.Requests;
 using NaughtyBunnyBot.Lovense.Responses;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using NaughtyBunnyBot.Cache.Services.Abstractions;
 using NaughtyBunnyBot.Lovense.Abstractions;
 using NaughtyBunnyBot.Lovense.Services.Abstractions;
 
@@ -12,22 +13,33 @@ namespace NaughtyBunnyBot.Lovense.Services
     {
         private readonly ILogger<LovenseService> _logger;
         private readonly ILovenseClient _lovenseClient;
+        private readonly IMemoryCacheService _cacheService;
 
-        public LovenseService(ILogger<LovenseService> logger, ILovenseClient lovenseClient)
+        public LovenseService(ILogger<LovenseService> logger, ILovenseClient lovenseClient, IMemoryCacheService cacheService)
         {
             _logger = logger;
             _lovenseClient = lovenseClient;
+            _cacheService = cacheService;
         }
 
         public async Task<GenerateQrCodeResultDto?> GenerateQrCodeAsync(string userId, string username, string userToken)
         {
-            var result = await _lovenseClient.GetQrCodeAsync(new WebGetQrCodeRequest()
+            var result = _cacheService.Get<WebCommandResponseV2?>($"{userId}-qr-code");
+            if (result == null) 
             {
-                UserId = userId,
-                Username = username,
-                UserToken = userToken
-            });
-            
+                result = await _lovenseClient.GetQrCodeAsync(new WebGetQrCodeRequest()
+                {
+                    UserId = userId,
+                    Username = username,
+                    UserToken = userToken
+                });
+
+                if (result != null)
+                {
+                    _cacheService.Set($"{userId}-qr-code", result);
+                }
+            }
+
             if (result == null)
             {
                 return null;
