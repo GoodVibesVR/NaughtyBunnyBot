@@ -48,8 +48,6 @@ namespace NaughtyBunnyBot.Discord.Services
             await component.DeferAsync(ephemeral: true);
             var uId = component.User.Id.ToString();
 
-            await _webHookMessageSender.SendErrorAsync("This is a test", 502);
-
             // uToken isn't being used as we aren't verifying it.
             try
             {
