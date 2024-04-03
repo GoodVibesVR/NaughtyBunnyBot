@@ -13,13 +13,15 @@ namespace NaughtyBunnyBot.Lovense
 {
     public class LovenseClient : ILovenseClient
     {
+        private readonly string _clientName;
         private readonly string? _developerToken;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public LovenseClient(IHttpClientFactory httpClientFactory, IOptions<LovenseConfig> lovenseConfig)
         {
+            _clientName = lovenseConfig.Value.ClientName ?? "LovenseClient";
             _developerToken = lovenseConfig.Value.DeveloperToken;
-            _httpClient = httpClientFactory.CreateClient(lovenseConfig.Value.ClientName ?? "LovenseClient");
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<WebCommandResponseV2?> GetQrCodeAsync(WebGetQrCodeRequest request)
@@ -68,9 +70,10 @@ namespace NaughtyBunnyBot.Lovense
 
         private async Task<T?> PostAsync<T>(string path, HttpContent content)
         {
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var httpClient = _httpClientFactory.CreateClient(_clientName);
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            var response = await _httpClient.PostAsync(path, content);
+            var response = await httpClient.PostAsync(path, content);
             var json = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode == HttpStatusCode.OK && !string.IsNullOrEmpty(json))
