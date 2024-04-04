@@ -24,5 +24,11 @@
         
         public const string Profile = "profile";
         public const string ProfileDescription = "Shows user's current standing";
+
+        public const string Join = "join";
+        public const string JoinDescription = "Join the current ongoing hunt";
+
+        public const string Leave = "leave";
+        public const string LeaveDescription = "Leave the current ongoing hunt";
     }
 }

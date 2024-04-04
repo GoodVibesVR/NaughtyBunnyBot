@@ -15,9 +15,11 @@ public class SlashCommandHandler
     private readonly IEnableCommandService _enableCommandService;
     private readonly IScoreCommandService _scoreCommandService;
     private readonly IChannelCommandService _channelCommandService;
+    private readonly IEggHuntSlashCommandService _eggHuntSlashCommandService;
 
     public SlashCommandHandler(ILogger<SlashCommandHandler> logger, IOptions<DiscordConfig> discordSettings, 
-        IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService, IChannelCommandService channelCommandService)
+        IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService, 
+        IChannelCommandService channelCommandService, IEggHuntSlashCommandService eggHuntSlashCommandService)
     {
         _logger = logger;
         _discordSettings = discordSettings.Value;
@@ -25,6 +27,7 @@ public class SlashCommandHandler
         _enableCommandService = enableCommandService;
         _scoreCommandService = scoreCommandService;
         _channelCommandService = channelCommandService;
+        _eggHuntSlashCommandService = eggHuntSlashCommandService;
     }
 
     public async Task SlashCommandExecutedAsync(SocketSlashCommand command)
@@ -45,7 +48,6 @@ public class SlashCommandHandler
                     if (!await IsUserAuthorized(command)) return;
                     await _channelCommandService.HandleListChannelsCommandAsync(command);
                     break;
-                
                 case SlashCommandConstants.Enable:
                     if (!await IsUserAuthorized(command)) return;
                     await _enableCommandService.HandleEnableCommandAsync(command);
@@ -60,6 +62,12 @@ public class SlashCommandHandler
                     break;
                 case SlashCommandConstants.Profile:
                     await _scoreCommandService.HandleProfileCommandAsync(command);
+                    break;
+                case SlashCommandConstants.Join:
+                    await _eggHuntSlashCommandService.JoinSlashCommandHandlerAsync(command);
+                    break;
+                case SlashCommandConstants.Leave:
+                    await _eggHuntSlashCommandService.LeaveSlashCommandHandlerAsync(command);
                     break;
                 default:
                     _logger.LogWarning($"Unknown command: {command.Data.Name}");

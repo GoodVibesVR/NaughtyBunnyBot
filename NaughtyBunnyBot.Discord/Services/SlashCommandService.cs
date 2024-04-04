@@ -30,20 +30,27 @@ public class SlashCommandService : ISlashCommandService
             new SlashCommandBuilder()
                 .WithName(SlashCommandConstants.ChannelList)
                 .WithDescription(SlashCommandConstants.ChannelListDescription),
-            
+
             new SlashCommandBuilder()
                 .WithName(SlashCommandConstants.Enable)
                 .WithDescription(SlashCommandConstants.EnableDescription),
             new SlashCommandBuilder()
                 .WithName(SlashCommandConstants.Disable)
                 .WithDescription(SlashCommandConstants.DisableDescription),
-                
+
             new SlashCommandBuilder()
                 .WithName(SlashCommandConstants.Leaderboard)
                 .WithDescription(SlashCommandConstants.LeaderboardDescription),
             new SlashCommandBuilder()
                 .WithName(SlashCommandConstants.Profile)
-                .WithDescription(SlashCommandConstants.ProfileDescription)
+                .WithDescription(SlashCommandConstants.ProfileDescription),
+
+            new SlashCommandBuilder()
+                .WithName(SlashCommandConstants.Join)
+                .WithDescription(SlashCommandConstants.JoinDescription),
+            new SlashCommandBuilder()
+                .WithName(SlashCommandConstants.Leave)
+                .WithDescription(SlashCommandConstants.LeaveDescription)
         };
 
         foreach (var slashCommand in slashCommands)

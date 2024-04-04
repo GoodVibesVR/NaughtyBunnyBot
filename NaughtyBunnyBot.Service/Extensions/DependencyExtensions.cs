@@ -69,6 +69,7 @@ namespace NaughtyBunnyBot.Service.Extensions
             services.AddSingleton<IEnableCommandService, EnableCommandService>();
             services.AddSingleton<IScoreCommandService, ScoreCommandService>();
             services.AddSingleton<IChannelCommandService, ChannelCommandService>();
+            services.AddSingleton<IEggHuntSlashCommandService, EggHuntSlashCommandService>();
             services.AddSingleton<IButtonInteractionService, ButtonInteractionService>();
             services.AddSingleton<IDiscordMessageSender, DiscordMessageSender>();
             services.AddSingleton<IWebHookMessageSender, WebHookMessageSender>();
